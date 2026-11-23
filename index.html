@@ -5,68 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THE MEGA FOOTBALL DAILY</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-  body {
-    min-height: 100vh;
-    background: linear-gradient(160deg, #0a3d1f, #062b15);
-    color: #fff;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 20px;
-  }
-  h1 {
-    font-size: 26px; text-align: center; margin: 10px 0 4px;
-    color: #ffd700; text-shadow: 0 2px 8px rgba(0,0,0,.6);
-  }
-  .date { opacity: .8; margin-bottom: 16px; font-size: 14px; }
-  .streak {
-    background: rgba(255,255,255,.1); border: 1px solid #ffd700;
-    padding: 8px 18px; border-radius: 30px; margin-bottom: 20px; font-weight: bold;
-  }
-  .card {
-    background: rgba(255,255,255,.08);
-    border: 1px solid rgba(255,255,255,.2);
-    border-radius: 16px; padding: 24px;
-    max-width: 480px; width: 100%; text-align: center;
-    box-shadow: 0 8px 30px rgba(0,0,0,.4);
-  }
-  .badge {
-    display: inline-block; background: #ffd700; color: #062b15;
-    padding: 4px 14px; border-radius: 20px; font-size: 12px;
-    font-weight: bold; margin-bottom: 14px; text-transform: uppercase;
-  }
-  .question { font-size: 18px; line-height: 1.6; margin-bottom: 20px; }
-  .clue { display: block; opacity: .9; margin: 4px 0; }
-  input {
-    width: 100%; padding: 12px; border-radius: 10px; border: none;
-    font-size: 16px; text-align: center; outline: none; margin-bottom: 12px;
-  }
-  button {
-    background: #ffd700; color: #062b15; border: none;
-    padding: 12px 30px; border-radius: 10px; font-size: 16px;
-    font-weight: bold; cursor: pointer; width: 100%;
-  }
-  button:hover { background: #ffea70; }
-  .feedback { margin-top: 16px; font-size: 16px; font-weight: bold; min-height: 24px; }
-  .correct { color: #6dff8f; }
-  .wrong { color: #ff7b7b; }
-  .done { font-size: 18px; line-height: 1.6; }
-  .timer { margin-top: 14px; opacity: .8; font-size: 14px; }
-  footer { margin-top: 24px; opacity: .5; font-size: 12px; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
+  body { min-height:100vh; background:linear-gradient(160deg,#0a3d1f,#062b15); color:#fff;
+         display:flex; flex-direction:column; align-items:center; padding:20px; }
+  h1 { font-size:24px; text-align:center; margin:10px 0 4px; color:#ffd700; text-shadow:0 2px 8px rgba(0,0,0,.6); }
+  .date { opacity:.8; margin-bottom:12px; font-size:14px; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:16px; }
+  .stat { background:rgba(255,255,255,.1); border:1px solid #ffd700; padding:6px 16px; border-radius:30px; font-weight:bold; font-size:14px; }
+  .tabs { display:flex; gap:10px; margin-bottom:18px; }
+  .tab { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.3);
+         padding:10px 18px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:14px; }
+  .tab.active { background:#ffd700; color:#062b15; border-color:#ffd700; }
+  .card { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); border-radius:16px;
+          padding:24px; max-width:520px; width:100%; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.4); }
+  .badge { display:inline-block; background:#ffd700; color:#062b15; padding:4px 14px; border-radius:20px;
+           font-size:12px; font-weight:bold; margin-bottom:14px; text-transform:uppercase; }
+  .question { font-size:17px; line-height:1.6; margin-bottom:18px; }
+  input { width:100%; padding:12px; border-radius:10px; border:none; font-size:16px; text-align:center; outline:none; margin-bottom:12px; }
+  button.main { background:#ffd700; color:#062b15; border:none; padding:12px 30px; border-radius:10px;
+                font-size:16px; font-weight:bold; cursor:pointer; width:100%; }
+  button.main:hover { background:#ffea70; }
+  .feedback { margin-top:14px; font-size:15px; font-weight:bold; min-height:22px; }
+  .correct { color:#6dff8f; } .wrong { color:#ff7b7b; }
+  .done { font-size:17px; line-height:1.6; }
+  .timer { margin-top:14px; opacity:.85; font-size:14px; }
+  .lives { font-size:16px; margin-bottom:10px; }
+  .slots { margin:14px 0; text-align:left; }
+  .slot { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.07);
+          border:1px solid rgba(255,255,255,.15); border-radius:10px; padding:8px 12px; margin-bottom:6px; font-size:15px; }
+  .slot .rank { background:#ffd700; color:#062b15; min-width:26px; height:26px; border-radius:50%;
+                display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:13px; }
+  .slot.filled { background:rgba(109,255,143,.15); border-color:#6dff8f; }
+  .slot.revealed { background:rgba(255,123,123,.12); border-color:#ff7b7b; }
+  footer { margin-top:24px; opacity:.5; font-size:12px; }
 </style>
 </head>
 <body>
 
 <h1>⚽ THE MEGA FOOTBALL DAILY ⚽</h1>
 <div class="date" id="todayDate"></div>
-<div class="streak" id="streakBox">🔥 Streak: 0 days</div>
+<div class="stats">
+  <div class="stat" id="streakBox">🔥 Streak: 0</div>
+  <div class="stat" id="tenableBox">🔟 Tenable wins: 0</div>
+</div>
 
-<div class="card" id="card"></div>
+<div class="tabs">
+  <button class="tab active" id="tabDaily" onclick="switchTab('daily')">🎯 Daily Challenge</button>
+  <button class="tab" id="tabTenable" onclick="switchTab('tenable')">🔟 Tenable</button>
+</div>
 
-<footer>One challenge per day — come back tomorrow!</footer>
+<div class="card" id="dailyCard"></div>
+<div class="card" id="tenableCard" style="display:none"></div>
+
+<footer>One challenge per day per mode — come back tomorrow!</footer>
 
 <script>
-// ============ CHALLENGE BANK ============
-// Add new challenges here! They rotate automatically every day.
+// ================= DAILY CHALLENGE BANK =================
 const challenges = [
   { type: "Trivia", q: "Which country has won the most World Cups? 🏆", answers: ["brazil"] },
   { type: "Guess the Player", q: "🇪🇬 Egyptian<br>🔴 Plays for Liverpool<br>⚡ Known as the Egyptian King", answers: ["salah", "mohamed salah", "mo salah"] },
@@ -80,75 +74,179 @@ const challenges = [
   { type: "Trivia", q: "Which club plays its home games at Anfield? 🏟️", answers: ["liverpool"] }
 ];
 
-// ============ DAILY LOGIC ============
-const dayIndex = Math.floor(Date.now() / 86400000); // days since 1970
-const today = challenges[dayIndex % challenges.length];
+// ================= TENABLE BANK =================
+// Each question = exactly 10 answers, ranked 1 → 10.
+// Add your own by copying the pattern!
+const tenableQuestions = [
+  { q: "Name the TOP 10 all-time Champions League top scorers ⚽",
+    answers: ["Cristiano Ronaldo","Lionel Messi","Robert Lewandowski","Karim Benzema","Raúl","Thomas Müller","Thierry Henry","Alfredo Di Stéfano","Andriy Shevchenko","Zlatan Ibrahimović"] },
+  { q: "Name the TOP 10 clubs with the most Champions League titles 🏆",
+    answers: ["Real Madrid","AC Milan","Bayern Munich","Liverpool","Barcelona","Ajax","Inter Milan","Manchester United","Juventus","Benfica"] },
+  { q: "Name the TOP 10 Premier League all-time top scorers 🏴",
+    answers: ["Alan Shearer","Harry Kane","Wayne Rooney","Mohamed Salah","Sergio Agüero","Frank Lampard","Thierry Henry","Robbie Fowler","Jermain Defoe","Michael Owen"] },
+  { q: "Name the TOP 10 players with the most World Cup goals 🌍",
+    answers: ["Miroslav Klose","Ronaldo","Gerd Müller","Just Fontaine","Lionel Messi","Pelé","Kylian Mbappé","Sándor Kocsis","Jürgen Klinsmann","Gabriel Batistuta"] },
+  { q: "Name the TOP 10 countries with the most World Cup appearances 🌍",
+    answers: ["Brazil","Germany","Italy","Argentina","Mexico","England","France","Spain","Belgium","Uruguay"] }
+];
 
-const card = document.getElementById("card");
-const streakBox = document.getElementById("streakBox");
+// ================= SHARED LOGIC =================
+const dayIndex = Math.floor(Date.now() / 86400000);
+const today  = challenges[dayIndex % challenges.length];
+const todayT = tenableQuestions[dayIndex % tenableQuestions.length];
 
-document.getElementById("todayDate").textContent =
-  new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-
-// Streak system (saved in your browser)
-let streak = parseInt(localStorage.getItem("mfd_streak") || "0");
-let lastDay = parseInt(localStorage.getItem("mfd_lastDay") || "-1");
-if (lastDay === dayIndex - 1) { /* streak continues */ }
-else if (lastDay !== dayIndex) { streak = 0; }
-streakBox.textContent = "🔥 Streak: " + streak + " day" + (streak === 1 ? "" : "s");
-
-function normalize(str) {
-  return str.toLowerCase().trim().replace(/\s+/g, " ");
+function norm(s){
+  return s.toLowerCase().trim()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")  // ignore accents (raul = Raúl)
+    .replace(/[.'’-]/g,"")
+    .replace(/\s+/g," ");
 }
-
-function checkAnswer() {
-  const input = normalize(document.getElementById("answerInput").value);
-  if (!input) return;
-  if (today.answers.some(a => normalize(a) === input)) {
-    // Correct! Update streak
-    streak = (lastDay === dayIndex - 1) ? streak + 1 : 1;
-    localStorage.setItem("mfd_streak", streak);
-    localStorage.setItem("mfd_lastDay", dayIndex);
-    streakBox.textContent = "🔥 Streak: " + streak + " day" + (streak === 1 ? "" : "s");
-    showDone(true);
-  } else {
-    document.getElementById("feedback").textContent = "❌ Wrong! Try again...";
-    document.getElementById("feedback").className = "feedback wrong";
-  }
+// Accepts full name, first name, or last name ("salah", "pele", "real madrid"...)
+function isMatch(input, answer){
+  const n = norm(input), a = norm(answer);
+  if (!n) return false;
+  if (n === a) return true;
+  const w = a.split(" ");
+  return n === w[0] || n === w[w.length-1];
 }
-
-function showDone(wasCorrect) {
-  const hours = 23 - new Date().getHours();
-  card.innerHTML = `
-    <div class="badge">${today.type}</div>
-    <div class="done">${wasCorrect ? "✅ <b>Correct!</b> Come back tomorrow for a new challenge! ⚽" : "⏰ Already played today. New challenge tomorrow!"}</div>
-    <div class="timer">Next challenge in: <b id="countdown">--:--:--</b></div>`;
+function startCountdown(id){
   setInterval(() => {
-    const now = new Date();
-    const end = new Date(now); end.setHours(24,0,0,0);
-    const diff = end - now;
-    const h = String(Math.floor(diff/3600000)).padStart(2,"0");
-    const m = String(Math.floor(diff%3600000/60000)).padStart(2,"0");
-    const s = String(Math.floor(diff%60000/1000)).padStart(2,"0");
-    const el = document.getElementById("countdown");
+    const now = new Date(); const end = new Date(now); end.setHours(24,0,0,0);
+    const d = end - now;
+    const h = String(Math.floor(d/3600000)).padStart(2,"0");
+    const m = String(Math.floor(d%3600000/60000)).padStart(2,"0");
+    const s = String(Math.floor(d%60000/1000)).padStart(2,"0");
+    const el = document.getElementById(id);
     if (el) el.textContent = `${h}:${m}:${s}`;
   }, 1000);
 }
 
-// Render today's challenge (or show done screen)
+// Stats
+let streak = parseInt(localStorage.getItem("mfd_streak") || "0");
+let lastDay = parseInt(localStorage.getItem("mfd_lastDay") || "-1");
+if (lastDay !== dayIndex && lastDay < dayIndex - 1) streak = 0;
+let tenableWins = parseInt(localStorage.getItem("mfd_tenableWins") || "0");
+document.getElementById("streakBox").textContent = "🔥 Streak: " + streak;
+document.getElementById("tenableBox").textContent = "🔟 Tenable wins: " + tenableWins;
+document.getElementById("todayDate").textContent =
+  new Date().toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+
+// ================= TABS =================
+function switchTab(which){
+  const daily = which === "daily";
+  document.getElementById("tabDaily").classList.toggle("active", daily);
+  document.getElementById("tabTenable").classList.toggle("active", !daily);
+  document.getElementById("dailyCard").style.display = daily ? "" : "none";
+  document.getElementById("tenableCard").style.display = daily ? "none" : "";
+}
+
+// ================= DAILY CHALLENGE =================
+const dailyCard = document.getElementById("dailyCard");
+
+function checkAnswer(){
+  const input = norm(document.getElementById("answerInput").value);
+  if (!input) return;
+  if (today.answers.some(a => norm(a) === input)) {
+    streak = (lastDay === dayIndex - 1) ? streak + 1 : 1;
+    localStorage.setItem("mfd_streak", streak);
+    localStorage.setItem("mfd_lastDay", dayIndex);
+    document.getElementById("streakBox").textContent = "🔥 Streak: " + streak;
+    showDone(true);
+  } else {
+    const fb = document.getElementById("feedback");
+    fb.textContent = "❌ Wrong! Try again...";
+    fb.className = "feedback wrong";
+  }
+}
+function showDone(wasCorrect){
+  dailyCard.innerHTML = `
+    <div class="badge">${today.type}</div>
+    <div class="done">${wasCorrect ? "✅ <b>Correct!</b> Come back tomorrow! ⚽" : "⏰ Already played today. New challenge tomorrow!"}</div>
+    <div class="timer">Next challenge in: <b id="countdown">--:--:--</b></div>`;
+  startCountdown("countdown");
+}
 if (lastDay === dayIndex) {
   showDone(false);
 } else {
-  card.innerHTML = `
+  dailyCard.innerHTML = `
     <div class="badge">${today.type}</div>
     <div class="question">${today.q}</div>
     <input id="answerInput" placeholder="Type your answer..." autocomplete="off">
-    <button onclick="checkAnswer()">SUBMIT ✅</button>
+    <button class="main" onclick="checkAnswer()">SUBMIT ✅</button>
     <div class="feedback" id="feedback"></div>`;
-  document.getElementById("answerInput").addEventListener("keydown", e => {
-    if (e.key === "Enter") checkAnswer();
-  });
+  document.getElementById("answerInput").addEventListener("keydown", e => { if (e.key === "Enter") checkAnswer(); });
 }
+
+// ================= TENABLE =================
+const tenableCard = document.getElementById("tenableCard");
+const tKey = "mfd_tenable_" + dayIndex;
+let tState = JSON.parse(localStorage.getItem(tKey) || "null") || { found: [], lives: 3, status: "playing" };
+function saveT(){ localStorage.setItem(tKey, JSON.stringify(tState)); }
+
+function slotHTML(i){
+  const found = tState.found.includes(i);
+  const revealed = tState.status === "lost" && !found;
+  const cls = found ? "filled" : (revealed ? "revealed" : "");
+  const text = (found || revealed) ? todayT.answers[i] : "???";
+  return `<div class="slot ${cls}"><div class="rank">${i+1}</div><div>${text}</div></div>`;
+}
+
+function renderTenable(){
+  if (tState.status === "playing") {
+    tenableCard.innerHTML = `
+      <div class="badge">Tenable</div>
+      <div class="question">${todayT.q}</div>
+      <div class="lives" id="livesBox">${"❤️".repeat(tState.lives)}${"🖤".repeat(3 - tState.lives)}</div>
+      <div class="slots">${todayT.answers.map((a,i) => slotHTML(i)).join("")}</div>
+      <input id="tInput" placeholder="Type a name..." autocomplete="off">
+      <button class="main" onclick="tGuess()">GUESS ✅</button>
+      <div class="feedback" id="tFeedback"></div>`;
+    document.getElementById("tInput").addEventListener("keydown", e => { if (e.key === "Enter") tGuess(); });
+  } else {
+    const won = tState.status === "won";
+    tenableCard.innerHTML = `
+      <div class="badge">Tenable</div>
+      <div class="done">${won ? "🏆 <b>PERFECT 10!</b> You completed today's Tenable!" : "💔 <b>Out of lives!</b> Here are the answers:"}</div>
+      <div class="slots">${todayT.answers.map((a,i) => slotHTML(i)).join("")}</div>
+      <div class="timer">Next Tenable in: <b id="tCountdown">--:--:--</b></div>`;
+    startCountdown("tCountdown");
+  }
+}
+
+function tGuess(){
+  const inp = document.getElementById("tInput");
+  if (!inp.value.trim()) return;
+  const idx = todayT.answers.findIndex((a,i) => !tState.found.includes(i) && isMatch(inp.value, a));
+  if (idx >= 0) {
+    tState.found.push(idx);
+    const wasLast = tState.found.length === 10;
+    if (wasLast) {
+      tState.status = "won";
+      tenableWins++;
+      localStorage.setItem("mfd_tenableWins", tenableWins);
+      document.getElementById("tenableBox").textContent = "🔟 Tenable wins: " + tenableWins;
+    }
+    saveT(); renderTenable();
+    if (!wasLast) {
+      const fb = document.getElementById("tFeedback");
+      fb.textContent = "✅ Correct! That's " + tState.found.length + "/10";
+      fb.className = "feedback correct";
+    }
+  } else {
+    tState.lives--; saveT();
+    if (tState.lives <= 0) {
+      tState.status = "lost"; saveT(); renderTenable();
+    } else {
+      const fb = document.getElementById("tFeedback");
+      fb.textContent = "❌ Wrong! Lives left: " + tState.lives;
+      fb.className = "feedback wrong";
+      document.getElementById("livesBox").textContent = "❤️".repeat(tState.lives) + "🖤".repeat(3 - tState.lives);
+      inp.value = "";
+    }
+  }
+}
+renderTenable();
 </script>
 </body>
-</html>
+</html>{ q: "Name the TOP 10 ...your question...",
+  answers: ["Answer 1","Answer 2","Answer 3","Answer 4","Answer 5","Answer 6","Answer 7","Answer 8","Answer 9","Answer 10"] },
