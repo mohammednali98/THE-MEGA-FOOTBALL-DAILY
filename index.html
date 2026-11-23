@@ -3,191 +3,152 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mystery Player ⚽ Daily Football Game</title>
+<title>THE MEGA FOOTBALL DAILY</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,Helvetica,sans-serif;background:#0e1a14;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px}
-h1{color:#4ade80;font-size:26px;margin-bottom:4px;text-align:center}
-.date{color:#9ca3af;font-size:14px;margin-bottom:16px;text-align:center}
-.clues{background:#16241c;border:1px solid #2d4a38;border-radius:12px;padding:14px;width:100%;max-width:480px;margin-bottom:14px}
-.hint{color:#9ca3af;font-size:13px;margin-bottom:8px}
-.clue{padding:8px 10px;margin:6px 0;border-radius:8px;background:#0e1a14;font-size:15px}
-.clue.locked{color:#4b5f52}
-.clue b{color:#4ade80}
-.row{display:flex;gap:8px;width:100%;max-width:480px}
-input{flex:1;min-width:0;padding:12px;border-radius:8px;border:1px solid #2d4a38;background:#16241c;color:#fff;font-size:16px}
-button{padding:12px 18px;border:none;border-radius:8px;background:#4ade80;color:#0e1a14;font-weight:bold;font-size:15px;cursor:pointer}
-button:active{transform:scale(.97)}
-.guesses{width:100%;max-width:480px;margin-top:14px}
-.guess{display:flex;justify-content:space-between;padding:10px 12px;border-radius:8px;margin:6px 0;font-size:15px}
-.wrong{background:#3b1d1d}
-.right{background:#1d3b24;border:1px solid #4ade80}
-.banner{margin-top:16px;text-align:center;font-size:18px;font-weight:bold}
-.share{margin-top:10px;background:#1d4ed8;color:#fff}
-.stats{margin-top:10px;color:#9ca3af;font-size:13px}
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(160deg, #0a3d1f, #062b15);
+    color: #fff;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 26px; text-align: center; margin: 10px 0 4px;
+    color: #ffd700; text-shadow: 0 2px 8px rgba(0,0,0,.6);
+  }
+  .date { opacity: .8; margin-bottom: 16px; font-size: 14px; }
+  .streak {
+    background: rgba(255,255,255,.1); border: 1px solid #ffd700;
+    padding: 8px 18px; border-radius: 30px; margin-bottom: 20px; font-weight: bold;
+  }
+  .card {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 16px; padding: 24px;
+    max-width: 480px; width: 100%; text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+  }
+  .badge {
+    display: inline-block; background: #ffd700; color: #062b15;
+    padding: 4px 14px; border-radius: 20px; font-size: 12px;
+    font-weight: bold; margin-bottom: 14px; text-transform: uppercase;
+  }
+  .question { font-size: 18px; line-height: 1.6; margin-bottom: 20px; }
+  .clue { display: block; opacity: .9; margin: 4px 0; }
+  input {
+    width: 100%; padding: 12px; border-radius: 10px; border: none;
+    font-size: 16px; text-align: center; outline: none; margin-bottom: 12px;
+  }
+  button {
+    background: #ffd700; color: #062b15; border: none;
+    padding: 12px 30px; border-radius: 10px; font-size: 16px;
+    font-weight: bold; cursor: pointer; width: 100%;
+  }
+  button:hover { background: #ffea70; }
+  .feedback { margin-top: 16px; font-size: 16px; font-weight: bold; min-height: 24px; }
+  .correct { color: #6dff8f; }
+  .wrong { color: #ff7b7b; }
+  .done { font-size: 18px; line-height: 1.6; }
+  .timer { margin-top: 14px; opacity: .8; font-size: 14px; }
+  footer { margin-top: 24px; opacity: .5; font-size: 12px; }
 </style>
 </head>
 <body>
-<h1>⚽ Mystery Player</h1>
-<div class="date" id="dateLabel"></div>
-<div class="clues">
-  <div class="hint">Guess the mystery player. Every wrong guess reveals a new clue. You have 6 attempts.</div>
-  <div id="clues"></div>
-</div>
-<div class="row">
-  <input id="guessInput" list="playersList" placeholder="Type or pick a player…">
-  <datalist id="playersList"></datalist>
-  <button onclick="makeGuess()">Guess</button>
-</div>
-<div class="guesses" id="guesses"></div>
-<div class="banner" id="banner"></div>
-<button class="share" id="shareBtn" style="display:none" onclick="shareResult()">📋 Copy result to share</button>
-<div class="stats" id="stats"></div>
+
+<h1>⚽ THE MEGA FOOTBALL DAILY ⚽</h1>
+<div class="date" id="todayDate"></div>
+<div class="streak" id="streakBox">🔥 Streak: 0 days</div>
+
+<div class="card" id="card"></div>
+
+<footer>One challenge per day — come back tomorrow!</footer>
 
 <script>
-// ===== PLAYER DATABASE — add more players by copying one line and changing it =====
-const PLAYERS=[
-{n:"Mohamed Salah",c:"Egypt",cl:"Liverpool",l:"Premier League",p:"Forward",a:33,f:"The Egyptian King 👑"},
-{n:"Lionel Messi",c:"Argentina",cl:"Inter Miami",l:"MLS",p:"Forward",a:38,f:"8 Ballon d'Ors 🐐"},
-{n:"Cristiano Ronaldo",c:"Portugal",cl:"Al Nassr",l:"Saudi Pro League",p:"Forward",a:40,f:"Mr. Champions League"},
-{n:"Kylian Mbappé",c:"France",cl:"Real Madrid",l:"La Liga",p:"Forward",a:26,f:"World Cup winner 2018"},
-{n:"Erling Haaland",c:"Norway",cl:"Manchester City",l:"Premier League",p:"Forward",a:25,f:"The Viking robot 🤖"},
-{n:"Vinícius Júnior",c:"Brazil",cl:"Real Madrid",l:"La Liga",p:"Forward",a:25,f:"Baila, Vini! 💃"},
-{n:"Jude Bellingham",c:"England",cl:"Real Madrid",l:"La Liga",p:"Midfielder",a:22,f:"Hey Jude 🎵"},
-{n:"Kevin De Bruyne",c:"Belgium",cl:"Napoli",l:"Serie A",p:"Midfielder",a:34,f:"The Belgian wizard"},
-{n:"Neymar Jr",c:"Brazil",cl:"Santos",l:"Brazilian Serie A",p:"Forward",a:33,f:"Joga bonito artist"},
-{n:"Lamine Yamal",c:"Spain",cl:"Barcelona",l:"La Liga",p:"Forward",a:18,f:"Barcelona's teenage star"},
-{n:"Robert Lewandowski",c:"Poland",cl:"Barcelona",l:"La Liga",p:"Striker",a:37,f:"Once scored 9 goals in 9 minutes"},
-{n:"Harry Kane",c:"England",cl:"Bayern Munich",l:"Bundesliga",p:"Striker",a:32,f:"England's all-time top scorer"},
-{n:"Florian Wirtz",c:"Germany",cl:"Liverpool",l:"Premier League",p:"Midfielder",a:22,f:"German wonderkid"},
-{n:"Jamal Musiala",c:"Germany",cl:"Bayern Munich",l:"Bundesliga",p:"Midfielder",a:22,f:"Nickname: Bambi 🦌"},
-{n:"Bukayo Saka",c:"England",cl:"Arsenal",l:"Premier League",p:"Winger",a:24,f:"Arsenal's star boy"},
-{n:"Declan Rice",c:"England",cl:"Arsenal",l:"Premier League",p:"Midfielder",a:26,f:"Arsenal's midfield engine"},
-{n:"Rodri",c:"Spain",cl:"Manchester City",l:"Premier League",p:"Midfielder",a:29,f:"2024 Ballon d'Or"},
-{n:"Virgil van Dijk",c:"Netherlands",cl:"Liverpool",l:"Premier League",p:"Defender",a:34,f:"The Dutch wall"},
-{n:"Alisson Becker",c:"Brazil",cl:"Liverpool",l:"Premier League",p:"Goalkeeper",a:32,f:"The goalkeeper who scores last-minute headers!"},
-{n:"Emiliano Martínez",c:"Argentina",cl:"Aston Villa",l:"Premier League",p:"Goalkeeper",a:33,f:"Master of penalty mind games"},
-{n:"Victor Osimhen",c:"Nigeria",cl:"Galatasaray",l:"Süper Lig",p:"Striker",a:26,f:"Nigeria's goal machine"},
-{n:"Achraf Hakimi",c:"Morocco",cl:"Paris Saint-Germain",l:"Ligue 1",p:"Defender",a:26,f:"Speedster full-back"},
-{n:"Ousmane Dembélé",c:"France",cl:"Paris Saint-Germain",l:"Ligue 1",p:"Forward",a:28,f:"2025 Ballon d'Or"},
-{n:"Cole Palmer",c:"England",cl:"Chelsea",l:"Premier League",p:"Midfielder",a:23,f:"Cold Palmer ❄️"},
-{n:"Phil Foden",c:"England",cl:"Manchester City",l:"Premier League",p:"Midfielder",a:25,f:"The Stockport Iniesta"},
-{n:"Son Heung-min",c:"South Korea",cl:"LAFC",l:"MLS",p:"Forward",a:33,f:"Sonny — a Premier League legend"},
-{n:"Antoine Griezmann",c:"France",cl:"Atlético Madrid",l:"La Liga",p:"Forward",a:34,f:"Grizou"},
-{n:"Federico Valverde",c:"Uruguay",cl:"Real Madrid",l:"La Liga",p:"Midfielder",a:27,f:"Runs all day 🔋"},
-{n:"Alexis Mac Allister",c:"Argentina",cl:"Liverpool",l:"Premier League",p:"Midfielder",a:26,f:"World Cup winner 2022"},
-{n:"Bruno Fernandes",c:"Portugal",cl:"Manchester United",l:"Premier League",p:"Midfielder",a:31,f:"Manchester United's captain"},
-{n:"Riyad Mahrez",c:"Algeria",cl:"Al Ahli",l:"Saudi Pro League",p:"Forward",a:34,f:"The Algerian magician"},
-{n:"Yassine Bounou",c:"Morocco",cl:"Al Hilal",l:"Saudi Pro League",p:"Goalkeeper",a:34,f:"World Cup 2022 penalty hero"},
-{n:"Sadio Mané",c:"Senegal",cl:"Al Nassr",l:"Saudi Pro League",p:"Forward",a:33,f:"From a Senegalese village to stardom"},
-{n:"Kalidou Koulibaly",c:"Senegal",cl:"Al Hilal",l:"Saudi Pro League",p:"Defender",a:34,f:"The Senegalese rock"},
-{n:"Zlatan Ibrahimović",c:"Sweden",cl:"AC Milan",l:"Retired legend ⭐",p:"Striker",a:44,f:"Lions don't compare themselves to humans"},
-{n:"Ronaldinho",c:"Brazil",cl:"Barcelona",l:"Retired legend ⭐",p:"Forward",a:45,f:"Made football look easy and fun"},
-{n:"Kaká",c:"Brazil",cl:"AC Milan",l:"Retired legend ⭐",p:"Midfielder",a:43,f:"2007 Ballon d'Or"},
-{n:"Andrea Pirlo",c:"Italy",cl:"Juventus",l:"Retired legend ⭐",p:"Midfielder",a:46,f:"The architect 🎨"},
-{n:"Didier Drogba",c:"Ivory Coast",cl:"Chelsea",l:"Retired legend ⭐",p:"Striker",a:47,f:"Chelsea's legendary striker"},
-{n:"Samuel Eto'o",c:"Cameroon",cl:"Barcelona",l:"Retired legend ⭐",p:"Striker",a:44,f:"Africa's most decorated striker"},
-{n:"Francesco Totti",c:"Italy",cl:"Roma",l:"Retired legend ⭐",p:"Forward",a:49,f:"Rome's eternal captain"},
-{n:"Iker Casillas",c:"Spain",cl:"Real Madrid",l:"Retired legend ⭐",p:"Goalkeeper",a:44,f:"Saint Iker"},
-{n:"David Beckham",c:"England",cl:"Manchester United",l:"Retired legend ⭐",p:"Midfielder",a:50,f:"Bend it like Beckham"},
-{n:"George Weah",c:"Liberia",cl:"AC Milan",l:"Retired legend ⭐",p:"Striker",a:59,f:"Became President of Liberia! 🏛️"},
-{n:"Jay-Jay Okocha",c:"Nigeria",cl:"Paris Saint-Germain",l:"Retired legend ⭐",p:"Midfielder",a:52,f:"So good they named him twice"},
-{n:"Hossam Hassan",c:"Egypt",cl:"Al Ahly & Zamalek",l:"Retired legend ⭐",p:"Striker",a:59,f:"Egyptian legend — now national team coach"}
+// ============ CHALLENGE BANK ============
+// Add new challenges here! They rotate automatically every day.
+const challenges = [
+  { type: "Trivia", q: "Which country has won the most World Cups? 🏆", answers: ["brazil"] },
+  { type: "Guess the Player", q: "🇪🇬 Egyptian<br>🔴 Plays for Liverpool<br>⚡ Known as the Egyptian King", answers: ["salah", "mohamed salah", "mo salah"] },
+  { type: "Guess the Score", q: "2022 World Cup Final 🇦🇷 vs 🇫🇷 — score after penalties?", answers: ["4-2", "4 - 2"] },
+  { type: "Trivia", q: "Which club has won the most Champions League titles? 🏆", answers: ["real madrid", "real"] },
+  { type: "Guess the Player", q: "🇵🇹 Portuguese<br>5 Ballon d'Ors<br>😱 Famous for saying 'Siuuu!'", answers: ["cristiano ronaldo", "ronaldo", "cr7"] },
+  { type: "Trivia", q: "How many players from each team are on the pitch? ⚽", answers: ["11", "eleven"] },
+  { type: "Guess the Player", q: "🇦🇷 Argentine<br>8 Ballon d'Ors<br>🏆 Won the 2022 World Cup", answers: ["messi", "lionel messi", "leo messi"] },
+  { type: "Trivia", q: "Which country hosted the 2022 World Cup? 🌍", answers: ["qatar"] },
+  { type: "Guess the Score", q: "La Remontada 2017: Barcelona 6 - ? PSG 😱", answers: ["1", "6-1"] },
+  { type: "Trivia", q: "Which club plays its home games at Anfield? 🏟️", answers: ["liverpool"] }
 ];
 
-// ===== DAILY PUZZLE LOGIC (new player every day, no server needed) =====
-const START = new Date(2025, 0, 1);
-const today = new Date(); today.setHours(0,0,0,0);
-const dayNo = Math.floor((today - START) / 86400000);
-const puzzleNo = dayNo + 1;
-const idx = ((dayNo % PLAYERS.length) + PLAYERS.length) % PLAYERS.length;
-const ANSWER = PLAYERS[idx];
-const CLUES = [
-  ["Position", ANSWER.p],
-  ["League", ANSWER.l],
-  ["Nationality", ANSWER.c],
-  ["Club", ANSWER.cl],
-  ["Age", ANSWER.a + " years old"],
-  ["Final hint", ANSWER.f]
-];
-const MAX = 6;
-const KEY = "mp_" + dayNo;
+// ============ DAILY LOGIC ============
+const dayIndex = Math.floor(Date.now() / 86400000); // days since 1970
+const today = challenges[dayIndex % challenges.length];
 
-let revealed = 1, guesses = [], over = false, won = false;
-const saved = JSON.parse(localStorage.getItem(KEY) || "null");
-if (saved) { revealed = saved.revealed; guesses = saved.guesses; over = saved.over; won = saved.won; }
+const card = document.getElementById("card");
+const streakBox = document.getElementById("streakBox");
 
-// ===== RENDERING =====
-function renderClues() {
-  document.getElementById("clues").innerHTML = CLUES.map((c, i) =>
-    i < revealed
-      ? `<div class="clue"><b>${c[0]}:</b> ${c[1]}</div>`
-      : `<div class="clue locked">🔒 Clue ${i + 1} — hidden (make a guess)</div>`
-  ).join("");
+document.getElementById("todayDate").textContent =
+  new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+// Streak system (saved in your browser)
+let streak = parseInt(localStorage.getItem("mfd_streak") || "0");
+let lastDay = parseInt(localStorage.getItem("mfd_lastDay") || "-1");
+if (lastDay === dayIndex - 1) { /* streak continues */ }
+else if (lastDay !== dayIndex) { streak = 0; }
+streakBox.textContent = "🔥 Streak: " + streak + " day" + (streak === 1 ? "" : "s");
+
+function normalize(str) {
+  return str.toLowerCase().trim().replace(/\s+/g, " ");
 }
-function renderGuesses() {
-  document.getElementById("guesses").innerHTML = guesses.map(g =>
-    g.ok
-      ? `<div class="guess right"><span>${g.name}</span><span>✅</span></div>`
-      : `<div class="guess wrong"><span>${g.name}</span><span>❌</span></div>`
-  ).join("");
-}
-function renderStats() {
-  let s; try { s = JSON.parse(localStorage.getItem("mp_stats")); } catch (e) {}
-  if (!s || typeof s !== "object") s = { played: 0, wins: 0, streak: 0 };
-  document.getElementById("stats").textContent =
-    `🔥 Streak: ${s.streak}  |  ✅ Wins: ${s.wins} / ${s.played} played`;
-}
-function render() {
-  renderClues(); renderGuesses(); renderStats();
-  const b = document.getElementById("banner"), sb = document.getElementById("shareBtn");
-  if (over) {
-    b.textContent = won ? `🎉 Correct! It's ${ANSWER.n}!` : `😢 Out of guesses! It was ${ANSWER.n}`;
-    sb.style.display = "inline-block";
-    document.getElementById("guessInput").disabled = true;
+
+function checkAnswer() {
+  const input = normalize(document.getElementById("answerInput").value);
+  if (!input) return;
+  if (today.answers.some(a => normalize(a) === input)) {
+    // Correct! Update streak
+    streak = (lastDay === dayIndex - 1) ? streak + 1 : 1;
+    localStorage.setItem("mfd_streak", streak);
+    localStorage.setItem("mfd_lastDay", dayIndex);
+    streakBox.textContent = "🔥 Streak: " + streak + " day" + (streak === 1 ? "" : "s");
+    showDone(true);
+  } else {
+    document.getElementById("feedback").textContent = "❌ Wrong! Try again...";
+    document.getElementById("feedback").className = "feedback wrong";
   }
 }
 
-// ===== GAME ACTIONS =====
-function save() { localStorage.setItem(KEY, JSON.stringify({ revealed, guesses, over, won })); }
-function makeGuess() {
-  if (over) return;
-  const el = document.getElementById("guessInput");
-  const val = el.value.trim().toLowerCase();
-  if (!val) return;
-  if (guesses.some(g => g.v === val)) { alert("You already tried that one!"); return; }
-  const correct = val === ANSWER.n.toLowerCase();
-  guesses.push({ v: val, name: el.value.trim(), ok: correct });
-  if (correct) { won = true; over = true; }
-  else {
-    revealed = Math.min(revealed + 1, CLUES.length);
-    if (guesses.length >= MAX) over = true;
-  }
-  if (over) bumpStats();
-  save(); el.value = ""; render();
-}
-function bumpStats() {
-  let s; try { s = JSON.parse(localStorage.getItem("mp_stats")); } catch (e) {}
-  if (!s || typeof s !== "object") s = { played: 0, wins: 0, streak: 0, last: -1 };
-  if (s.last !== dayNo - 1) s.streak = 0;
-  if (won) s.streak++; else s.streak = 0;
-  s.played++; if (won) s.wins++;
-  s.last = dayNo;
-  localStorage.setItem("mp_stats", JSON.stringify(s));
-}
-function shareResult() {
-  const res = won ? `Solved in ${guesses.length}/${MAX} ✅` : `Failed ${MAX}/${MAX} ❌`;
-  const txt = `⚽ Mystery Player — Puzzle #${puzzleNo}\n${res}\nCan you guess today's player? ${location.href}`;
-  navigator.clipboard.writeText(txt).then(() => alert("Copied! Paste it in WhatsApp/Facebook 📋"));
+function showDone(wasCorrect) {
+  const hours = 23 - new Date().getHours();
+  card.innerHTML = `
+    <div class="badge">${today.type}</div>
+    <div class="done">${wasCorrect ? "✅ <b>Correct!</b> Come back tomorrow for a new challenge! ⚽" : "⏰ Already played today. New challenge tomorrow!"}</div>
+    <div class="timer">Next challenge in: <b id="countdown">--:--:--</b></div>`;
+  setInterval(() => {
+    const now = new Date();
+    const end = new Date(now); end.setHours(24,0,0,0);
+    const diff = end - now;
+    const h = String(Math.floor(diff/3600000)).padStart(2,"0");
+    const m = String(Math.floor(diff%3600000/60000)).padStart(2,"0");
+    const s = String(Math.floor(diff%60000/1000)).padStart(2,"0");
+    const el = document.getElementById("countdown");
+    if (el) el.textContent = `${h}:${m}:${s}`;
+  }, 1000);
 }
 
-// ===== SETUP =====
-document.getElementById("dateLabel").textContent =
-  today.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" }) +
-  `  —  Puzzle #${puzzleNo}`;
-document.getElementById("playersList").innerHTML = PLAYERS.map(p => `<option value="${p.n}">`).join("");
-document.getElementById("guessInput").addEventListener("keydown", e => { if (e.key === "Enter") makeGuess(); });
-render();
+// Render today's challenge (or show done screen)
+if (lastDay === dayIndex) {
+  showDone(false);
+} else {
+  card.innerHTML = `
+    <div class="badge">${today.type}</div>
+    <div class="question">${today.q}</div>
+    <input id="answerInput" placeholder="Type your answer..." autocomplete="off">
+    <button onclick="checkAnswer()">SUBMIT ✅</button>
+    <div class="feedback" id="feedback"></div>`;
+  document.getElementById("answerInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") checkAnswer();
+  });
+}
 </script>
 </body>
 </html>
