@@ -1,252 +1,215 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>THE MEGA FOOTBALL DAILY</title>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',Arial,sans-serif; }
-  body { min-height:100vh; background:linear-gradient(160deg,#0a3d1f,#062b15); color:#fff;
-         display:flex; flex-direction:column; align-items:center; padding:20px; }
-  h1 { font-size:24px; text-align:center; margin:10px 0 4px; color:#ffd700; text-shadow:0 2px 8px rgba(0,0,0,.6); }
-  .date { opacity:.8; margin-bottom:12px; font-size:14px; }
-  .stats { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:16px; }
-  .stat { background:rgba(255,255,255,.1); border:1px solid #ffd700; padding:6px 16px; border-radius:30px; font-weight:bold; font-size:14px; }
-  .tabs { display:flex; gap:10px; margin-bottom:18px; }
-  .tab { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.3);
-         padding:10px 18px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:14px; }
-  .tab.active { background:#ffd700; color:#062b15; border-color:#ffd700; }
-  .card { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.2); border-radius:16px;
-          padding:24px; max-width:520px; width:100%; text-align:center; box-shadow:0 8px 30px rgba(0,0,0,.4); }
-  .badge { display:inline-block; background:#ffd700; color:#062b15; padding:4px 14px; border-radius:20px;
-           font-size:12px; font-weight:bold; margin-bottom:14px; text-transform:uppercase; }
-  .question { font-size:17px; line-height:1.6; margin-bottom:18px; }
-  input { width:100%; padding:12px; border-radius:10px; border:none; font-size:16px; text-align:center; outline:none; margin-bottom:12px; }
-  button.main { background:#ffd700; color:#062b15; border:none; padding:12px 30px; border-radius:10px;
-                font-size:16px; font-weight:bold; cursor:pointer; width:100%; }
-  button.main:hover { background:#ffea70; }
-  .feedback { margin-top:14px; font-size:15px; font-weight:bold; min-height:22px; }
-  .correct { color:#6dff8f; } .wrong { color:#ff7b7b; }
-  .done { font-size:17px; line-height:1.6; }
-  .timer { margin-top:14px; opacity:.85; font-size:14px; }
-  .lives { font-size:16px; margin-bottom:10px; }
-  .slots { margin:14px 0; text-align:left; }
-  .slot { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.07);
-          border:1px solid rgba(255,255,255,.15); border-radius:10px; padding:8px 12px; margin-bottom:6px; font-size:15px; }
-  .slot .rank { background:#ffd700; color:#062b15; min-width:26px; height:26px; border-radius:50%;
-                display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:13px; }
-  .slot.filled { background:rgba(109,255,143,.15); border-color:#6dff8f; }
-  .slot.revealed { background:rgba(255,123,123,.12); border-color:#ff7b7b; }
-  footer { margin-top:24px; opacity:.5; font-size:12px; }
-</style>
-</head>
-<body>
+/* =========================================================
+   PLAYERS DATABASE
+   name     : official display name
+   aliases  : nicknames people actually type (optional but powerful)
+   club     : current club
+   clubs    : notable clubs played for (your Grid/Lineup games check against this)
+   position : GK / DF / MF / FW
+   ========================================================= */
 
-<h1>⚽ THE MEGA FOOTBALL DAILY ⚽</h1>
-<div class="date" id="todayDate"></div>
-<div class="stats">
-  <div class="stat" id="streakBox">🔥 Streak: 0</div>
-  <div class="stat" id="tenableBox">🔟 Tenable wins: 0</div>
-</div>
+const PLAYERS_DB = [
+  { id: 1,  name: "Lionel Messi",          aliases: ["Leo Messi", "Messi"],            nation: "Argentina",  flag: "🇦🇷", club: "Inter Miami",      clubs: ["Barcelona", "PSG", "Inter Miami"],                    position: "FW" },
+  { id: 2,  name: "Cristiano Ronaldo",     aliases: ["CR7", "Ronaldo"],                nation: "Portugal",   flag: "🇵🇹", club: "Al Nassr",         clubs: ["Sporting CP", "Manchester United", "Real Madrid", "Juventus", "Al Nassr"], position: "FW" },
+  { id: 3,  name: "Kylian Mbappé",         aliases: ["Mbappe"],                        nation: "France",     flag: "🇫🇷", club: "Real Madrid",      clubs: ["Monaco", "PSG", "Real Madrid"],                       position: "FW" },
+  { id: 4,  name: "Erling Haaland",        aliases: [],                                nation: "Norway",     flag: "🇳🇴", club: "Manchester City",  clubs: ["Molde", "RB Salzburg", "Borussia Dortmund", "Manchester City"], position: "FW" },
+  { id: 5,  name: "Mohamed Salah",         aliases: ["Mo Salah"],                      nation: "Egypt",      flag: "🇪🇬", club: "Liverpool",        clubs: ["Basel", "Chelsea", "Fiorentina", "Roma", "Liverpool"], position: "FW" },
+  { id: 6,  name: "Kevin De Bruyne",       aliases: ["KDB", "De Bruyne"],              nation: "Belgium",    flag: "🇧🇪", club: "Napoli",           clubs: ["Genk", "Chelsea", "Wolfsburg", "Manchester City", "Napoli"], position: "MF" },
+  { id: 7,  name: "Neymar Jr",             aliases: ["Neymar"],                        nation: "Brazil",     flag: "🇧🇷", club: "Santos",           clubs: ["Santos", "Barcelona", "PSG", "Al Hilal"],             position: "FW" },
+  { id: 8,  name: "Luka Modrić",           aliases: ["Modric"],                        nation: "Croatia",    flag: "🇭🇷", club: "AC Milan",         clubs: ["Dinamo Zagreb", "Tottenham", "Real Madrid", "AC Milan"], position: "MF" },
+  { id: 9,  name: "Robert Lewandowski",    aliases: ["Lewandowski"],                   nation: "Poland",     flag: "🇵🇱", club: "Barcelona",        clubs: ["Borussia Dortmund", "Bayern Munich", "Barcelona"],    position: "FW" },
+  { id: 10, name: "Harry Kane",            aliases: [],                                nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Bayern Munich",    clubs: ["Tottenham", "Bayern Munich"],                         position: "FW" },
+  { id: 11, name: "Vinícius Júnior",       aliases: ["Vini Jr", "Vinicius"],           nation: "Brazil",     flag: "🇧🇷", club: "Real Madrid",      clubs: ["Flamengo", "Real Madrid"],                            position: "FW" },
+  { id: 12, name: "Jude Bellingham",       aliases: [],                                nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Real Madrid",      clubs: ["Birmingham City", "Borussia Dortmund", "Real Madrid"], position: "MF" },
+  { id: 13, name: "Bukayo Saka",           aliases: [],                                nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Arsenal",          clubs: ["Arsenal"],                                            position: "FW" },
+  { id: 14, name: "Phil Foden",            aliases: [],                                nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Manchester City",  clubs: ["Manchester City"],                                    position: "MF" },
+  { id: 15, name: "Declan Rice",           aliases: [],                                nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Arsenal",          clubs: ["West Ham", "Arsenal"],                                position: "MF" },
+  { id: 16, name: "Bruno Fernandes",       aliases: [],                                nation: "Portugal",   flag: "🇵🇹", club: "Manchester United", clubs: ["Sporting CP", "Manchester United"],                  position: "MF" },
+  { id: 17, name: "Bernardo Silva",        aliases: [],                                nation: "Portugal",   flag: "🇵🇹", club: "Manchester City",  clubs: ["Benfica", "Monaco", "Manchester City"],               position: "MF" },
+  { id: 18, name: "Rafael Leão",           aliases: ["Leao", "Rafael Leao"],           nation: "Portugal",   flag: "🇵🇹", club: "AC Milan",         clubs: ["Sporting CP", "Lille", "AC Milan"],                   position: "FW" },
+  { id: 19, name: "Antoine Griezmann",     aliases: [],                                nation: "France",     flag: "🇫🇷", club: "Atlético Madrid",  clubs: ["Real Sociedad", "Barcelona", "Atlético Madrid"],      position: "FW" },
+  { id: 20, name: "Ousmane Dembélé",       aliases: ["Dembele"],                       nation: "France",     flag: "🇫🇷", club: "PSG",              clubs: ["Rennes", "Borussia Dortmund", "Barcelona", "PSG"],    position: "FW" },
+  { id: 21, name: "Pedri",                 aliases: [],                                nation: "Spain",      flag: "🇪🇸", club: "Barcelona",        clubs: ["Las Palmas", "Barcelona"],                            position: "MF" },
+  { id: 22, name: "Gavi",                  aliases: [],                                nation: "Spain",      flag: "🇪🇸", club: "Barcelona",        clubs: ["Barcelona"],                                          position: "MF" },
+  { id: 23, name: "Lamine Yamal",          aliases: ["Yamal"],                         nation: "Spain",      flag: "🇪🇸", club: "Barcelona",        clubs: ["Barcelona"],                                          position: "FW" },
+  { id: 24, name: "Rodri",                 aliases: [],                                nation: "Spain",      flag: "🇪🇸", club: "Manchester City",  clubs: ["Villarreal", "Atlético Madrid", "Manchester City"],   position: "MF" },
+  { id: 25, name: "Sergio Ramos",          aliases: [],                                nation: "Spain",      flag: "🇪🇸", club: "Monterrey",        clubs: ["Sevilla", "Real Madrid", "PSG", "Monterrey"],         position: "DF" },
+  { id: 26, name: "Virgil van Dijk",       aliases: ["Van Dijk"],                      nation: "Netherlands", flag: "🇳🇱", club: "Liverpool",       clubs: ["Groningen", "Celtic", "Southampton", "Liverpool"],    position: "DF" },
+  { id: 27, name: "Frenkie de Jong",       aliases: ["De Jong"],                       nation: "Netherlands", flag: "🇳🇱", club: "Barcelona",       clubs: ["Ajax", "Barcelona"],                                  position: "MF" },
+  { id: 28, name: "Cody Gakpo",            aliases: [],                                nation: "Netherlands", flag: "🇳🇱", club: "Liverpool",       clubs: ["PSV", "Liverpool"],                                   position: "FW" },
+  { id: 29, name: "Matthijs de Ligt",      aliases: ["De Ligt"],                       nation: "Netherlands", flag: "🇳🇱", club: "Manchester United", clubs: ["Ajax", "Juventus", "Bayern Munich", "Manchester United"], position: "DF" },
+  { id: 30, name: "Joshua Kimmich",        aliases  { id: 30, name: "Joshua Kimmich",        aliases: [],                                nation: "Germany",     flag: "🇩🇪", club: "Bayern Munich",    clubs: ["Stuttgart", "RB Leipzig", "Bayern Munich"], position: "MF" },
+  { id: 31, name: "Jamal Musiala",         aliases: [],                                nation: "Germany",     flag: "🇩🇪", club: "Bayern Munich",    clubs: ["Bayern Munich"],                            position: "MF" },
+  { id: 32, name: "Florian Wirtz",         aliases: [],                                nation: "Germany",     flag: "🇩🇪", club: "Liverpool",        clubs: ["Bayer Leverkusen", "Liverpool"],            position: "MF" },
+  { id: 33, name: "Kai Havertz",           aliases: [],                                nation: "Germany",     flag: "🇩🇪", club: "Arsenal",          clubs: ["Bayer Leverkusen", "Chelsea", "Arsenal"],   position: "FW" },
+  { id: 34, name: "Antonio Rüdiger",       aliases: ["Rudiger"],                       nation: "Germany",     flag: "🇩🇪", club: "Real Madrid",      clubs: ["Stuttgart", "Roma", "Chelsea", "Real Madrid"], position: "DF" },
+  { id: 35, name: "İlkay Gündoğan",        aliases: ["Ilkay Gundogan", "Gundogan"],    nation: "Germany",     flag: "🇩🇪", club: "Manchester City",  clubs: ["Borussia Dortmund", "Manchester City", "Barcelona"], position: "MF" },
+  { id: 36, name: "Alisson Becker",        aliases: ["Alisson"],                       nation: "Brazil",      flag: "🇧🇷", club: "Liverpool",        clubs: ["Internacional", "Roma", "Liverpool"],       position: "GK" },
+  { id: 37, name: "Ederson",               aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Fenerbahçe",       clubs: ["Benfica", "Manchester City", "Fenerbahce"], position: "GK" },
+  { id: 38, name: "Casemiro",              aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Manchester United", clubs: ["São Paulo", "Real Madrid", "Manchester United"], position: "MF" },
+  { id: 39, name: "Rodrygo",               aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Real Madrid",      clubs: ["Santos", "Real Madrid"],                    position: "FW" },
+  { id: 40, name: "Raphinha",              aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Barcelona",        clubs: ["Rennes", "Leeds United", "Barcelona"],      position: "FW" },
+  { id: 41, name: "Richarlison",           aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Tottenham",        clubs: ["Watford", "Everton", "Tottenham"],          position: "FW" },
+  { id: 42, name: "Alphonso Davies",       aliases: [],                                nation: "Canada",      flag: "🇨🇦", club: "Bayern Munich",    clubs: ["Vancouver Whitecaps", "Bayern Munich"],     position: "DF" },
+  { id: 43, name: "Son Heung-min",         aliases: ["Son"],                           nation: "South Korea", flag: "🇰🇷", club: "LAFC",             clubs: ["Hamburg", "Bayer Leverkusen", "Tottenham", "LAFC"], position: "FW" },
+  { id: 44, name: "Kaoru Mitoma",          aliases: [],                                nation: "Japan",       flag: "🇯🇵", club: "Brighton",         clubs: ["Kawasaki Frontale", "Union Saint-Gilloise", "Brighton"], position: "FW" },
+  { id: 45, name: "Takefusa Kubo",         aliases: [],                                nation: "Japan",       flag: "🇯🇵", club: "Real Sociedad",    clubs: ["FC Tokyo", "Real Madrid", "Mallorca", "Real Sociedad"], position: "FW" },
+  { id: 46, name: "Victor Osimhen",        aliases: [],                                nation: "Nigeria",     flag: "🇳🇬", club: "Galatasaray",      clubs: ["Wolfsburg", "Charleroi", "Lille", "Napoli", "Galatasaray"], position: "FW" },
+  { id: 47, name: "Ademola Lookman",       aliases: [],                                nation: "Nigeria",     flag: "🇳🇬", club: "Atalanta",         clubs: ["Everton", "RB Leipzig", "Fulham", "Atalanta"], position: "FW" },
+  { id: 48, name: "Achraf Hakimi",         aliases: [],                                nation: "Morocco",     flag: "🇲🇦", club: "PSG",              clubs: ["Real Madrid", "Borussia Dortmund", "Inter Milan", "PSG"], position: "DF" },
+  { id: 49, name: "Yassine Bounou",        aliases: ["Bono", "Bounou"],                nation: "Morocco",     flag: "🇲🇦", club: "Al Hilal",         clubs: ["Girona", "Sevilla", "Al Hilal"],            position: "GK" },
+  { id: 50, name: "Cole Palmer",           aliases: [],                                nation: "England",     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Chelsea",          clubs: ["Manchester City", "Chelsea"],               position: "MF" },
+  { id: 51, name: "Emiliano Martínez",     aliases: ["Dibu Martinez", "Dibu", "Emi Martinez"], nation: "Argentina", flag: "🇦🇷", club: "Aston Villa", clubs: ["Arsenal", "Getafe", "Aston Villa"],      position: "GK" },
+  { id: 52, name: "Julián Álvarez",        aliases: ["Julian Alvarez"],                nation: "Argentina",   flag: "🇦🇷", club: "Atlético Madrid",  clubs: ["River Plate", "Manchester City", "Atlético Madrid"], position: "FW" },
+  { id: 53, name: "Lautaro Martínez",      aliases: ["Lautaro"],                       nation: "Argentina",   flag: "🇦🇷", club: "Inter Milan",      clubs: ["Racing Club", "Inter Milan"],               position: "FW" },
+  { id: 54, name: "Alexis Mac Allister",   aliases: ["Mac Allister"],                  nation: "Argentina",   flag: "🇦🇷", club: "Liverpool",        clubs: ["Argentinos Juniors", "Brighton", "Liverpool"], position: "MF" },
+  { id: 55, name: "Enzo Fernández",        aliases: ["Enzo Fernandez"],                nation: "Argentina",   flag: "🇦🇷", club: "Chelsea",          clubs: ["River Plate", "Benfica", "Chelsea"],        position: "MF" },
+  { id: 56, name: "Federico Valverde",     aliases: ["Fede Valverde", "Valverde"],     nation: "Uruguay",     flag: "🇺🇾", club: "Real Madrid",      clubs: ["Peñarol", "Deportivo La Coruña", "Real Madrid"], position: "MF" },
+  { id: 57, name: "Darwin Núñez",          aliases: ["Darwin Nunez", "Darwin"],        nation: "Uruguay",     flag: "🇺🇾", club: "Al Hilal",         clubs: ["Peñarol", "Almería", "Benfica", "Liverpool", "Al Hilal"], position: "FW" },
+  { id: 58, name: "Ronald Araújo",         aliases: ["Araujo"],                        nation: "Uruguay",     flag: "🇺🇾", club: "Barcelona",        clubs: ["Nacional", "Barcelona"],                    position: "DF" },
+  { id: 59, name: "Thibaut Courtois",      aliases: [],                                nation: "Belgium",     flag: "🇧🇪", club: "Real Madrid",      clubs: ["Genk", "Chelsea", "Atlético Madrid", "Real Madrid"], position: "GK" },
+  { id: 60, name: "Marcus Rashford",       aliases: [],                                nation: "England",     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Barcelona",        clubs: ["Manchester United", "Aston Villa", "Barcelona"], position: "FW" }
+];/* ============ AUTOCOMPLETE ENGINE ============ */
 
-<div class="tabs">
-  <button class="tab active" id="tabDaily" onclick="switchTab('daily')">🎯 Daily Challenge</button>
-  <button class="tab" id="tabTenable" onclick="switchTab('tenable')">🔟 Tenable</button>
-</div>
-
-<div class="card" id="dailyCard"></div>
-<div class="card" id="tenableCard" style="display:none"></div>
-
-<footer>One challenge per day per mode — come back tomorrow!</footer>
-
-<script>
-// ================= DAILY CHALLENGE BANK =================
-const challenges = [
-  { type: "Trivia", q: "Which country has won the most World Cups? 🏆", answers: ["brazil"] },
-  { type: "Guess the Player", q: "🇪🇬 Egyptian<br>🔴 Plays for Liverpool<br>⚡ Known as the Egyptian King", answers: ["salah", "mohamed salah", "mo salah"] },
-  { type: "Guess the Score", q: "2022 World Cup Final 🇦🇷 vs 🇫🇷 — score after penalties?", answers: ["4-2", "4 - 2"] },
-  { type: "Trivia", q: "Which club has won the most Champions League titles? 🏆", answers: ["real madrid", "real"] },
-  { type: "Guess the Player", q: "🇵🇹 Portuguese<br>5 Ballon d'Ors<br>😱 Famous for saying 'Siuuu!'", answers: ["cristiano ronaldo", "ronaldo", "cr7"] },
-  { type: "Trivia", q: "How many players from each team are on the pitch? ⚽", answers: ["11", "eleven"] },
-  { type: "Guess the Player", q: "🇦🇷 Argentine<br>8 Ballon d'Ors<br>🏆 Won the 2022 World Cup", answers: ["messi", "lionel messi", "leo messi"] },
-  { type: "Trivia", q: "Which country hosted the 2022 World Cup? 🌍", answers: ["qatar"] },
-  { type: "Guess the Score", q: "La Remontada 2017: Barcelona 6 - ? PSG 😱", answers: ["1", "6-1"] },
-  { type: "Trivia", q: "Which club plays its home games at Anfield? 🏟️", answers: ["liverpool"] }
-];
-
-// ================= TENABLE BANK =================
-// Each question = exactly 10 answers, ranked 1 → 10.
-// Add your own by copying the pattern!
-const tenableQuestions = [
-  { q: "Name the TOP 10 all-time Champions League top scorers ⚽",
-    answers: ["Cristiano Ronaldo","Lionel Messi","Robert Lewandowski","Karim Benzema","Raúl","Thomas Müller","Thierry Henry","Alfredo Di Stéfano","Andriy Shevchenko","Zlatan Ibrahimović"] },
-  { q: "Name the TOP 10 clubs with the most Champions League titles 🏆",
-    answers: ["Real Madrid","AC Milan","Bayern Munich","Liverpool","Barcelona","Ajax","Inter Milan","Manchester United","Juventus","Benfica"] },
-  { q: "Name the TOP 10 Premier League all-time top scorers 🏴",
-    answers: ["Alan Shearer","Harry Kane","Wayne Rooney","Mohamed Salah","Sergio Agüero","Frank Lampard","Thierry Henry","Robbie Fowler","Jermain Defoe","Michael Owen"] },
-  { q: "Name the TOP 10 players with the most World Cup goals 🌍",
-    answers: ["Miroslav Klose","Ronaldo","Gerd Müller","Just Fontaine","Lionel Messi","Pelé","Kylian Mbappé","Sándor Kocsis","Jürgen Klinsmann","Gabriel Batistuta"] },
-  { q: "Name the TOP 10 countries with the most World Cup appearances 🌍",
-    answers: ["Brazil","Germany","Italy","Argentina","Mexico","England","France","Spain","Belgium","Uruguay"] }
-];
-
-// ================= SHARED LOGIC =================
-const dayIndex = Math.floor(Date.now() / 86400000);
-const today  = challenges[dayIndex % challenges.length];
-const todayT = tenableQuestions[dayIndex % tenableQuestions.length];
-
-function norm(s){
-  return s.toLowerCase().trim()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")  // ignore accents (raul = Raúl)
-    .replace(/[.'’-]/g,"")
-    .replace(/\s+/g," ");
-}
-// Accepts full name, first name, or last name ("salah", "pele", "real madrid"...)
-function isMatch(input, answer){
-  const n = norm(input), a = norm(answer);
-  if (!n) return false;
-  if (n === a) return true;
-  const w = a.split(" ");
-  return n === w[0] || n === w[w.length-1];
-}
-function startCountdown(id){
-  setInterval(() => {
-    const now = new Date(); const end = new Date(now); end.setHours(24,0,0,0);
-    const d = end - now;
-    const h = String(Math.floor(d/3600000)).padStart(2,"0");
-    const m = String(Math.floor(d%3600000/60000)).padStart(2,"0");
-    const s = String(Math.floor(d%60000/1000)).padStart(2,"0");
-    const el = document.getElementById(id);
-    if (el) el.textContent = `${h}:${m}:${s}`;
-  }, 1000);
+// lowercase, strip accents (é→e, ü→u), strip punctuation, collapse spaces
+function normalize(str) {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, "")
+    .trim()
+    .replace(/\s+/g, " ");
 }
 
-// Stats
-let streak = parseInt(localStorage.getItem("mfd_streak") || "0");
-let lastDay = parseInt(localStorage.getItem("mfd_lastDay") || "-1");
-if (lastDay !== dayIndex && lastDay < dayIndex - 1) streak = 0;
-let tenableWins = parseInt(localStorage.getItem("mfd_tenableWins") || "0");
-document.getElementById("streakBox").textContent = "🔥 Streak: " + streak;
-document.getElementById("tenableBox").textContent = "🔟 Tenable wins: " + tenableWins;
-document.getElementById("todayDate").textContent =
-  new Date().toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
-
-// ================= TABS =================
-function switchTab(which){
-  const daily = which === "daily";
-  document.getElementById("tabDaily").classList.toggle("active", daily);
-  document.getElementById("tabTenable").classList.toggle("active", !daily);
-  document.getElementById("dailyCard").style.display = daily ? "" : "none";
-  document.getElementById("tenableCard").style.display = daily ? "none" : "";
-}
-
-// ================= DAILY CHALLENGE =================
-const dailyCard = document.getElementById("dailyCard");
-
-function checkAnswer(){
-  const input = norm(document.getElementById("answerInput").value);
-  if (!input) return;
-  if (today.answers.some(a => norm(a) === input)) {
-    streak = (lastDay === dayIndex - 1) ? streak + 1 : 1;
-    localStorage.setItem("mfd_streak", streak);
-    localStorage.setItem("mfd_lastDay", dayIndex);
-    document.getElementById("streakBox").textContent = "🔥 Streak: " + streak;
-    showDone(true);
-  } else {
-    const fb = document.getElementById("feedback");
-    fb.textContent = "❌ Wrong! Try again...";
-    fb.className = "feedback wrong";
+// build a search index once per database (cached)
+const indexCache = new WeakMap();
+function getIndex(db) {
+  if (!indexCache.has(db)) {
+    indexCache.set(db, db.map(p => ({
+      player: p,
+      keys: [normalize(p.name), ...(p.aliases || []).map(normalize)]
+    })));
   }
-}
-function showDone(wasCorrect){
-  dailyCard.innerHTML = `
-    <div class="badge">${today.type}</div>
-    <div class="done">${wasCorrect ? "✅ <b>Correct!</b> Come back tomorrow! ⚽" : "⏰ Already played today. New challenge tomorrow!"}</div>
-    <div class="timer">Next challenge in: <b id="countdown">--:--:--</b></div>`;
-  startCountdown("countdown");
-}
-if (lastDay === dayIndex) {
-  showDone(false);
-} else {
-  dailyCard.innerHTML = `
-    <div class="badge">${today.type}</div>
-    <div class="question">${today.q}</div>
-    <input id="answerInput" placeholder="Type your answer..." autocomplete="off">
-    <button class="main" onclick="checkAnswer()">SUBMIT ✅</button>
-    <div class="feedback" id="feedback"></div>`;
-  document.getElementById("answerInput").addEventListener("keydown", e => { if (e.key === "Enter") checkAnswer(); });
+  return indexCache.get(db);
 }
 
-// ================= TENABLE =================
-const tenableCard = document.getElementById("tenableCard");
-const tKey = "mfd_tenable_" + dayIndex;
-let tState = JSON.parse(localStorage.getItem(tKey) || "null") || { found: [], lives: 3, status: "playing" };
-function saveT(){ localStorage.setItem(tKey, JSON.stringify(tState)); }
+// rank 0 = starts with query, 1 = a word starts with it, 2 = contains it
+function searchPlayers(query, { source = PLAYERS_DB, exclude = [], filterFn = null, limit = 8 } = {}) {
+  const q = normalize(query);
+  if (!q) return [];
 
-function slotHTML(i){
-  const found = tState.found.includes(i);
-  const revealed = tState.status === "lost" && !found;
-  const cls = found ? "filled" : (revealed ? "revealed" : "");
-  const text = (found || revealed) ? todayT.answers[i] : "???";
-  return `<div class="slot ${cls}"><div class="rank">${i+1}</div><div>${text}</div></div>`;
-}
+  const excludedIds = new Set(exclude.map(p => p.id));
+  const buckets = [[], [], []];
 
-function renderTenable(){
-  if (tState.status === "playing") {
-    tenableCard.innerHTML = `
-      <div class="badge">Tenable</div>
-      <div class="question">${todayT.q}</div>
-      <div class="lives" id="livesBox">${"❤️".repeat(tState.lives)}${"🖤".repeat(3 - tState.lives)}</div>
-      <div class="slots">${todayT.answers.map((a,i) => slotHTML(i)).join("")}</div>
-      <input id="tInput" placeholder="Type a name..." autocomplete="off">
-      <button class="main" onclick="tGuess()">GUESS ✅</button>
-      <div class="feedback" id="tFeedback"></div>`;
-    document.getElementById("tInput").addEventListener("keydown", e => { if (e.key === "Enter") tGuess(); });
-  } else {
-    const won = tState.status === "won";
-    tenableCard.innerHTML = `
-      <div class="badge">Tenable</div>
-      <div class="done">${won ? "🏆 <b>PERFECT 10!</b> You completed today's Tenable!" : "💔 <b>Out of lives!</b> Here are the answers:"}</div>
-      <div class="slots">${todayT.answers.map((a,i) => slotHTML(i)).join("")}</div>
-      <div class="timer">Next Tenable in: <b id="tCountdown">--:--:--</b></div>`;
-    startCountdown("tCountdown");
+  for (const { player, keys } of getIndex(source)) {
+    if (excludedIds.has(player.id)) continue;
+    if (filterFn && !filterFn(player)) continue;
+
+    let rank = -1;
+    for (const key of keys) {
+      const r = key.startsWith(q) ? 0
+              : key.includes(" " + q) ? 1
+              : key.includes(q) ? 2 : -1;
+      if (r === 0) { rank = 0; break; }
+      if (r !== -1 && (rank === -1 || r < rank)) rank = r;
+    }
+    if (rank !== -1) buckets[rank].push(player);
   }
+
+  return [...buckets[0], ...buckets[1], ...buckets[2]].slice(0, limit);
+}/* ============ AUTOCOMPLETE UI ============ */
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+function highlight(name, q) {
+  const i = name.toLowerCase().indexOf(q.toLowerCase());
+  return i < 0 ? esc(name)
+    : esc(name.slice(0, i)) + "<mark>" + esc(name.slice(i, i + q.length)) + "</mark>" + esc(name.slice(i + q.length));
 }
 
-function tGuess(){
-  const inp = document.getElementById("tInput");
-  if (!inp.value.trim()) return;
-  const idx = todayT.answers.findIndex((a,i) => !tState.found.includes(i) && isMatch(inp.value, a));
-  if (idx >= 0) {
-    tState.found.push(idx);
-    const wasLast = tState.found.length === 10;
-    if (wasLast) {
-      tState.status = "won";
-      tenableWins++;
-      localStorage.setItem("mfd_tenableWins", tenableWins);
-      document.getElementById("tenableBox").textContent = "🔟 Tenable wins: " + tenableWins;
-    }
-    saveT(); renderTenable();
-    if (!wasLast) {
-      const fb = document.getElementById("tFeedback");
-      fb.textContent = "✅ Correct! That's " + tState.found.length + "/10";
-      fb.className = "feedback correct";
-    }
-  } else {
-    tState.lives--; saveT();
-    if (tState.lives <= 0) {
-      tState.status = "lost"; saveT(); renderTenable();
-    } else {
-      const fb = document.getElementById("tFeedback");
-      fb.textContent = "❌ Wrong! Lives left: " + tState.lives;
-      fb.className = "feedback wrong";
-      document.getElementById("livesBox").textContent = "❤️".repeat(tState.lives) + "🖤".repeat(3 - tState.lives);
-      inp.value = "";
-    }
+function attachAutocomplete(inputEl, opts = {}) {
+  const {
+    source = PLAYERS_DB,     // which database to search
+    onSelect = () => {},     // what to do when a player is picked
+    getExclude = () => [],   // players to hide (e.g. already guessed)
+    filterFn = null,         // optional restriction, e.g. only FWs
+    limit = 8,
+    minChars = 1
+  } = opts;
+
+  // wrap the input so the dropdown positions correctly
+  let wrapper = inputEl.parentElement;
+  if (!wrapper.classList.contains("ac-wrapper")) {
+    wrapper = document.createElement("div");
+    wrapper.className = "ac-wrapper";
+    inputEl.before(wrapper);
+    wrapper.appendChild(inputEl);
   }
+  const dropdown = document.createElement("div");
+  dropdown.className = "ac-dropdown";
+  wrapper.appendChild(dropdown);
+
+  let results = [], active = -1;
+
+  const close = () => { dropdown.style.display = "none"; active = -1; };
+
+  function render() {
+    dropdown.innerHTML = results.length
+      ? results.map((p, i) => `
+          <div class="ac-item ${i === active ? "active" : ""}" data-i="${i}">
+            <span>${p.flag || ""}</span>
+            <span class="ac-name">${highlight(p.name, inputEl.value.trim())}</span>
+            <span class="ac-meta">${esc(p.club || "")}</span>
+          </div>`).join("")
+      : `<div class="ac-empty">No matches found</div>`;
+    dropdown.style.display = "block";
+  }
+
+  function choose(i) {
+    const p = results[i];
+    if (!p) return;
+    close();
+    inputEl.value = "";
+    onSelect(p);
+  }
+
+  inputEl.addEventListener("input", () => {
+    const v = inputEl.value.trim();
+    if (v.length < minChars) { close(); return; }
+    results = searchPlayers(v, { source, exclude: getExclude(), filterFn, limit });
+    active = results.length ? 0 : -1;   // Enter picks the top match instantly
+    render();
+  });
+
+  inputEl.addEventListener("keydown", e => {
+    if (dropdown.style.display !== "block" || !results.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); active = (active + 1) % results.length; render(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); active = (active - 1 + results.length) % results.length; render(); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(active >= 0 ? active : 0); }
+    else if (e.key === "Escape") close();
+  });
+
+  // pointerdown + preventDefault = works on mobile AND keeps keyboard focus
+  dropdown.addEventListener("pointerdown", e => {
+    const item = e.target.closest(".ac-item");
+    if (item) { e.preventDefault(); choose(+item.dataset.i); }
+  });
+
+  inputEl.addEventListener("blur", () => setTimeout(close, 150));
+  inputEl.setAttribute("autocomplete", "off");
+}.ac-wrapper { position: relative; }
+.ac-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1px solid #ddd; border-radius: 10px;
+  max-height: 260px; overflow-y: auto; z-index: 1000;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18); display: none;
 }
-renderTenable();
-</script>
-</body>
-</html>{ q: "Name the TOP 10 ...your question...",
-  answers: ["Answer 1","Answer 2","Answer 3","Answer 4","Answer 5","Answer 6","Answer 7","Answer 8","Answer 9","Answer 10"] },
+.ac-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; cursor: pointer; font-size: 14px;
+}
+.ac-item.active, .ac-item:hover { background: #eef4ff; }
+.ac-name { font-weight: 600; }
+.ac-meta { margin-left: auto; font-size: 12px; color: #888; }
+.ac-item mark { background: #ffe58a; padding: 0; }
+.ac-empty { padding: 12px; color: #999; font-size: 13px; text-align: center; }
