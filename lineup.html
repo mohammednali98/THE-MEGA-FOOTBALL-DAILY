@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Lineup — The Mega Football Daily</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, sans-serif; background: #0b132b; color: #fff; margin: 0; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .date { color: #9fb3d1; margin: 0 0 20px; font-size: 14px; }
+  .card { background: #1c2541; border-radius: 14px; padding: 20px; width: 100%; max-width: 480px; }
+  button { font-family: inherit; font-size: 16px; border: none; border-radius: 10px; padding: 12px 18px; cursor: pointer; font-weight: 600; }
+  .btn-green { background: #2ec4b6; color: #04211d; width: 100%; margin-bottom: 10px; }
+  .btn-blue { background: #3a506b; color: #fff; width: 100%; }
+  .btn-flag { background: transparent; color: #9fb3d1; border: 1px solid #3a506b; width: 100%; margin-top: 14px; }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; min-height: 28px; }
+  .timer { font-size: 18px; font-weight: 700; color: #ffd166; }
+  .mistakes { color: #ef476f; font-weight: 600; }
+  .howto { color: #9fb3d1; font-size: 13px; margin: 0 0 14px; line-height: 1.5; }
+  .slot { display: flex; align-items: center; gap: 10px; background: #0f1a33; border: 2px solid #24304d; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .slot .club { font-weight: 700; flex: 1; }
+  .slot .player { color: #2ec4b6; font-weight: 600; text-align: right; }
+  .slot.filled { border-color: #2ec4b6; }
+  .slot.revealed { border-color: #ef476f; }
+  .slot.revealed .player { color: #ef476f; }
+  .slot.wrong { border-color: #ef476f; animation: shake .4s; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  .slot .ac-wrapper { flex: 1; }
+  .slot .ac-wrapper input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #24304d; background: #0b132b; color: #fff; font-size: 15px; }
+  .ac-wrapper { position: relative; }
+  .ac-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; color: #222; border-radius: 10px; max-height: 260px; overflow-y: auto; z-index: 1000; box-shadow: 0 10px 24px rgba(0,0,0,.35); display: none; }
+  .ac-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; cursor: pointer; font-size: 14px; }
+  .ac-item.active, .ac-item:hover { background: #eef4ff; }
+  .ac-name { font-weight: 600; }
+  .ac-meta { margin-left: auto; font-size: 12px; color: #888; }
+  .ac-item mark { background: #ffe58a; padding: 0; }
+  .ac-empty { padding: 12px; color: #999; font-size: 13px; text-align: center; }
+  #result { display: none; margin-top: 16px; background: #1c2541; border: 2px solid #2ec4b6; border-radius: 14px; padding: 18px; width: 100%; max-width: 480px; text-align: center; }
+  #result h2 { margin: 0 0 6px; }
+  #result p { color: #9fb3d1; margin: 0; }
+  .back { margin-top: 20px; color: #9fb3d1; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>⚽ Daily Lineup</h1>
+<p class="date" id="dateLabel"></p>
+
+<div class="card" id="startScreen">
+  <p class="howto"><b>How to play:</b> 11 clubs appear in random order. Type a player who has played for each club. Complete all 11 to win!</p>
+  <button class="btn-green" id="btnTimed">▶ Play with timer</button>
+  <button class="btn-blue" id="btnUntimed">▶ Play without timer</button>
+</div>
+
+<div class="card" id="game" style="display:none">
+  <div class="topbar">
+    <span class="mistakes" id="mistakes"></span>
+    <span class="timer" id="timer"></span>
+  </div>
+  <div id="slots"></div>
+  <button class="btn-flag" id="giveUp">🏳️ Give up (reveal answers)</button>
+</div>
+
+<div id="result"></div>
+
+<p class="back"><a href="index.html" style="color:#9fb3d1">← Back to home</a></p>
+
+<script>
+/* ===== PLAYERS DATABASE ===== */
+const PLAYERS_DB = [
+{ id: 1,  name: "Lionel Messi",        aliases: ["Leo Messi", "Messi"],   nation: "Argentina",  flag: "🇦🇷", club: "Inter Miami",       clubs: ["Barcelona", "PSG", "Inter Miami"], position: "FW" },
+{ id: 2,  name: "Cristiano Ronaldo",   aliases: ["CR7", "Ronaldo"],       nation: "Portugal",   flag: "🇵🇹", club: "Al Nassr",          clubs: ["Sporting CP", "Manchester United", "Real Madrid", "Juventus", "Al Nassr"], position: "FW" },
+{ id: 3,  name: "Kylian Mbappé",       aliases: ["Mbappe"],               nation: "France",     flag: "🇫🇷", club: "Real Madrid",       clubs: ["Monaco", "PSG", "Real Madrid"], position: "FW" },
+{ id: 4,  name: "Erling Haaland",      aliases: [],                       nation: "Norway",     flag: "🇳🇴", club: "Manchester City",   clubs: ["Molde", "RB Salzburg", "Borussia Dortmund", "Manchester City"], position: "FW" },
+{ id: 5,  name: "Mohamed Salah",       aliases: ["Mo Salah"],             nation: "Egypt",      flag: "🇪🇬", club: "Liverpool",         clubs: ["Basel", "Chelsea", "Fiorentina", "Roma", "Liverpool"], position: "FW" },
+{ id: 6,  name: "Kevin De Bruyne",     aliases: ["KDB", "De Bruyne"],     nation: "Belgium",    flag: "🇧🇪", club: "Napoli",            clubs: ["Genk", "Chelsea", "Wolfsburg", "Manchester City", "Napoli"], position: "MF" },
+{ id: 7,  name: "Neymar Jr",           aliases: ["Neymar"],               nation: "Brazil",     flag: "🇧🇷", club: "Santos",            clubs: ["Santos", "Barcelona", "PSG", "Al Hilal"], position: "FW" },
+{ id: 8,  name: "Luka Modrić",         aliases: ["Modric"],               nation: "Croatia",    flag: "🇭🇷", club: "AC Milan",          clubs: ["Dinamo Zagreb", "Tottenham", "Real Madrid", "AC Milan"], position: "MF" },
+{ id: 9,  name: "Robert Lewandowski",  aliases: [],                       nation: "Poland",     flag: "🇵🇱", club: "Barcelona",         clubs: ["Borussia Dortmund", "Bayern Munich", "Barcelona"], position: "FW" },
+{ id: 10, name: "Harry Kane",          aliases: [],                       nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Bayern Munich",     clubs: ["Tottenham", "Bayern Munich"], position: "FW" },
+{ id: 11, name: "Vinícius Júnior",     aliases: ["Vini Jr", "Vinicius"],  nation: "Brazil",     flag: "🇧🇷", club: "Real Madrid",       clubs: ["Flamengo", "Real Madrid"], position: "FW" },
+{ id: 12, name: "Jude Bellingham",     aliases: [],                       nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Real Madrid",       clubs: ["Birmingham City", "Borussia Dortmund", "Real Madrid"], position: "MF" },
+{ id: 13, name: "Bukayo Saka",         aliases: [],                       nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Arsenal",           clubs: ["Arsenal"], position: "FW" },
+{ id: 14, name: "Phil Foden",          aliases: [],                       nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Manchester City",   clubs: ["Manchester City"], position: "MF" },
+{ id: 15, name: "Declan Rice",         aliases: [],                       nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Arsenal",           clubs: ["West Ham", "Arsenal"], position: "MF" },
+{ id: 16, name: "Bruno Fernandes",     aliases: [],                       nation: "Portugal",   flag: "🇵🇹", club: "Manchester United", clubs: ["Sporting CP", "Manchester United"], position: "MF" },
+{ id: 17, name: "Bernardo Silva",      aliases: [],                       nation: "Portugal",   flag: "🇵🇹", club: "Manchester City",   clubs: ["Benfica", "Monaco", "Manchester City"], position: "MF" },
+{ id: 18, name: "Rafael Leão",         aliases: ["Leao", "Rafael Leao"],  nation: "Portugal",   flag: "🇵🇹", club: "AC Milan",          clubs: ["Sporting CP", "Lille", "AC Milan"], position: "FW" },
+{ id: 19, name: "Antoine Griezmann",   aliases: [],                       nation: "France",     flag: "🇫🇷", club: "Atlético Madrid",   clubs: ["Real Sociedad", "Barcelona", "Atlético Madrid"], position: "FW" },
+{ id: 20, name: "Ousmane Dembélé",     aliases: ["Dembele"],              nation: "France",     flag: "🇫🇷", club: "PSG",               clubs: ["Rennes", "Borussia Dortmund", "Barcelona", "PSG"], position: "FW" },
+{ id: 21, name: "Pedri",               aliases: [],                       nation: "Spain",      flag: "🇪🇸", club: "Barcelona",         clubs: ["Las Palmas", "Barcelona"], position: "MF" },
+{ id: 22, name: "Gavi",                aliases: [],                       nation: "Spain",      flag: "🇪🇸", club: "Barcelona",         clubs: ["Barcelona"], position: "MF" },
+{ id: 23, name: "Lamine Yamal",        aliases: ["Yamal"],                nation: "Spain",      flag: "🇪🇸", club: "Barcelona",         clubs: ["Barcelona"], position: "FW" },
+{ id: 24, name: "Rodri",               aliases: [],                       nation: "Spain",      flag: "🇪🇸", club: "Manchester City",   clubs: ["Villarreal", "Atlético Madrid", "Manchester City"], position: "MF" },
+{ id: 25, name: "Sergio Ramos",        aliases: [],                       nation: "Spain",      flag: "🇪🇸", club: "Monterrey",         clubs: ["Sevilla", "Real Madrid", "PSG", "Monterrey"], position: "DF" },
+{ id: 26, name: "Virgil van Dijk",     aliases: ["Van Dijk"],             nation: "Netherlands", flag: "🇳🇱", club: "Liverpool",        clubs: ["Groningen", "Celtic", "Southampton", "Liverpool"], position: "DF" },
+{ id: 27, name: "Frenkie de Jong",     aliases: ["De Jong"],              nation: "Netherlands", flag: "🇳🇱", club: "Barcelona",        clubs: ["Ajax", "Barcelona"], position: "MF" },
+{ id: 28, name: "Cody Gakpo",          aliases: [],                       nation: "Netherlands", flag: "🇳🇱", club: "Liverpool",        clubs: ["PSV", "Liverpool"], position: "FW" },
+{ id: 29, name: "Matthijs de Ligt",    aliases: ["De Ligt"],              nation: "Netherlands", flag: "🇳🇱", club: "Manchester United", clubs: ["Ajax", "Juventus", "Bayern Munich", "Manchester United"], position: "DF" },
+{ id: 30, name: "Joshua Kimmich",      aliases: [],                       nation: "Germany",    flag: "🇩🇪", club: "Bayern Munich",     clubs: ["Stuttgart", "RB Leipzig", "Bayern Munich"], position: "MF" },
+{ id: 31, name: "Jamal Musiala",       aliases: [],                       nation: "Germany",    flag: "🇩🇪", club: "Bayern Munich",     clubs: ["Bayern Munich"], position: "MF" },
+{ id: 32, name: "Florian Wirtz",       aliases: [],                       nation: "Germany",    flag: "🇩🇪", club: "Liverpool",         clubs: ["Bayer Leverkusen", "Liverpool"], position: "MF" },
+{ id: 33, name: "Kai Havertz",         aliases: [],                       nation: "Germany",    flag: "🇩🇪", club: "Arsenal",           clubs: ["Bayer Leverkusen", "Chelsea", "Arsenal"], position: "FW" },
+{ id: 34, name: "Antonio Rüdiger",     aliases: ["Rudiger"],              nation: "Germany",    flag: "🇩🇪", club: "Real Madrid",       clubs: ["Stuttgart", "Roma", "Chelsea", "Real Madrid"], position: "DF" },
+{ id: 35, name: "İlkay Gündoğan",      aliases: ["Ilkay Gundogan", "Gundogan"], nation: "Germany", flag: "🇩🇪", club: "Manchester City", clubs: ["Borussia Dortmund", "Manchester City", "Barcelona"], position: "MF" },
+{ id: 36, name: "Alisson Becker",      aliases: ["Alisson"],              nation: "Brazil",     flag: "🇧🇷", club: "Liverpool",         clubs: ["Internacional", "Roma", "Liverpool"], position: "GK" },
+{ id: 37, name: "Ederson",             aliases: [],                       nation: "Brazil",     flag: "🇧🇷", club: "Fenerbahçe",        clubs: ["Benfica", "Manchester City", "Fenerbahce"], position: "GK" },
+{ id: 38, name: "Casemiro",            aliases: [],                       nation: "Brazil",     flag: "🇧🇷", club: "Manchester United", clubs: ["São Paulo", "Real Madrid", "Manchester United"], position: "MF" },
+{ id: 39, name: "Rodrygo",             aliases: [],                       nation: "Brazil",     flag: "🇧🇷", club: "Real Madrid",       clubs: ["Santos", "Real Madrid"], position: "FW" },
+{ id: 40, name: "Raphinha",            aliases: [],                       nation: "Brazil",     flag: "🇧🇷", club: "Barcelona",         clubs: ["Rennes", "Leeds United", "Barcelona"], position: "FW" },
+{ id: 41, name: "Richarlison",         aliases: [],                       nation: "Brazil",     flag: "🇧🇷", club: "Tottenham",         clubs: ["Watford", "Everton", "Tottenham"], position: "FW" },
+{ id: 42, name: "Alphonso Davies",     aliases: [],                       nation: "Canada",     flag: "🇨🇦", club: "Bayern Munich",     clubs: ["Vancouver Whitecaps", "Bayern Munich"], position: "DF" },
+{ id: 43, name: "Son Heung-min",       aliases: ["Son"],                  nation: "South Korea", flag: "🇰🇷", club: "LAFC",             clubs: ["Hamburg", "Bayer Leverkusen", "Tottenham", "LAFC"], position: "FW" },
+{ id: 44, name: "Kaoru Mitoma",        aliases: [],                       nation: "Japan",      flag: "🇯🇵", club: "Brighton",          clubs: ["Kawasaki Frontale", "Union Saint-Gilloise", "Brighton"], position: "FW" },
+{ id: 45, name: "Takefusa Kubo",       aliases: [],                       nation: "Japan",      flag: "🇯🇵", club: "Real Sociedad",     clubs: ["FC Tokyo", "Real Madrid", "Mallorca", "Real Sociedad"], position: "FW" },
+{ id: 46, name: "Victor Osimhen",      aliases: [],                       nation: "Nigeria",    flag: "🇳🇬", club: "Galatasaray",       clubs: ["Wolfsburg", "Charleroi", "Lille", "Napoli", "Galatasaray"], position: "FW" },
+{ id: 47, name: "Ademola Lookman",     aliases: [],                       nation: "Nigeria",    flag: "🇳🇬", club: "Atalanta",          clubs: ["Everton", "RB Leipzig", "Fulham", "Atalanta"], position: "FW" },
+{ id: 48, name: "Achraf Hakimi",       aliases: [],                       nation: "Morocco",    flag: "🇲🇦", club: "PSG",               clubs: ["Real Madrid", "Borussia Dortmund", "Inter Milan", "PSG"], position: "DF" },
+{ id: 49, name: "Yassine Bounou",      aliases: ["Bono", "Bounou"],       nation: "Morocco",    flag: "🇲🇦", club: "Al Hilal",          clubs: ["Girona", "Sevilla", "Al Hilal"], position: "GK" },
+{ id: 50, name: "Cole Palmer",         aliases: [],                       nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Chelsea",           clubs: ["Manchester City", "Chelsea"], position: "MF" },
+{ id: 51, name: "Emiliano Martínez",   aliases: ["Dibu Martinez", "Dibu", "Emi Martinez"], nation: "Argentina", flag: "🇦🇷", club: "Aston Villa", clubs: ["Arsenal", "Getafe", "Aston Villa"], position: "GK" },
+{ id: 52, name: "Julián Álvarez",      aliases: ["Julian Alvarez"],       nation: "Argentina",  flag: "🇦🇷", club: "Atlético Madrid",   clubs: ["River Plate", "Manchester City", "Atlético Madrid"], position: "FW" },
+{ id: 53, name: "Lautaro Martínez",    aliases: ["Lautaro"],              nation: "Argentina",  flag: "🇦🇷", club: "Inter Milan",       clubs: ["Racing Club", "Inter Milan"], position: "FW" },
+{ id: 54, name: "Alexis Mac Allister", aliases: ["Mac Allister"],         nation: "Argentina",  flag: "🇦🇷", club: "Liverpool",         clubs: ["Argentinos Juniors", "Brighton", "Liverpool"], position: "MF" },
+{ id: 55, name: "Enzo Fernández",      aliases: ["Enzo Fernandez"],       nation: "Argentina",  flag: "🇦🇷", club: "Chelsea",           clubs: ["River Plate", "Benfica", "Chelsea"], position: "MF" },
+{ id: 56, name: "Federico Valverde",   aliases: ["Fede Valverde", "Valverde"], nation: "Uruguay", flag: "🇺🇾", club: "Real Madrid",      clubs: ["Peñarol", "Deportivo La Coruña", "Real Madrid"], position: "MF" },
+{ id: 57, name: "Darwin Núñez",        aliases: ["Darwin Nunez", "Darwin"], nation: "Uruguay",  flag: "🇺🇾", club: "Al Hilal",          clubs: ["Peñarol", "Almería", "Benfica", "Liverpool", "Al Hilal"], position: "FW" },
+{ id: 58, name: "Ronald Araújo",       aliases: ["Araujo"],               nation: "Uruguay",    flag: "🇺🇾", club: "Barcelona",         clubs: ["Nacional", "Barcelona"], position: "DF" },
+{ id: 59, name: "Thibaut Courtois",    aliases: [],                       nation: "Belgium",    flag: "🇧🇪", club: "Real Madrid",       clubs: ["Genk", "Chelsea", "Atlético Madrid", "Real Madrid"], position: "GK" },
+{ id: 60, name: "Marcus Rashford",     aliases: [],                       nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Barcelona",         clubs: ["Manchester United", "Aston Villa", "Barcelona"], position: "FW" }
+];
+
+/* ===== SEARCH ENGINE ===== */
+function normalize(str) {
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, " ");
+}
+const indexCache = new WeakMap();
+function getIndex(db) {
+  if (!indexCache.has(db)) {
+    indexCache.set(db, db.map(p => ({ player: p, keys: [normalize(p.name), ...(p.aliases || []).map(normalize)] })));
+  }
+  return indexCache.get(db);
+}
+function searchPlayers(query, { source = PLAYERS_DB, exclude = [], filterFn = null, limit = 8 } = {}) {
+  const q = normalize(query);
+  if (!q) return [];
+  const excludedIds = new Set(exclude.map(p => p.id));
+  const buckets = [[], [], []];
+  for (const { player, keys } of getIndex(source)) {
+    if (excludedIds.has(player.id)) continue;
+    if (filterFn && !filterFn(player)) continue;
+    let rank = -1;
+    for (const key of keys) {
+      const r = key.startsWith(q) ? 0 : key.includes(" " + q) ? 1 : key.includes(q) ? 2 : -1;
+      if (r === 0) { rank = 0; break; }
+      if (r !== -1 && (rank === -1 || r < rank)) rank = r;
+    }
+    if (rank !== -1) buckets[rank].push(player);
+  }
+  return [...buckets[0], ...buckets[1], ...buckets[2]].slice(0, limit);
+}
+
+/* ===== AUTOCOMPLETE DROPDOWN ===== */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function highlight(name, q) {
+  const i = name.toLowerCase().indexOf(q.toLowerCase());
+  return i < 0 ? esc(name) : esc(name.slice(0, i)) + "<mark>" + esc(name.slice(i, i + q.length)) + "</mark>" + esc(name.slice(i + q.length));
+}
+function attachAutocomplete(inputEl, opts = {}) {
+  const { source = PLAYERS_DB, onSelect = () => {}, getExclude = () => [], filterFn = null, limit = 8, minChars = 1 } = opts;
+  let wrapper = inputEl.parentElement;
+  if (!wrapper.classList.contains("ac-wrapper")) {
+    wrapper = document.createElement("div");
+    wrapper.className = "ac-wrapper";
+    inputEl.before(wrapper);
+    wrapper.appendChild(inputEl);
+  }
+  const dropdown = document.createElement("div");
+  dropdown.className = "ac-dropdown";
+  wrapper.appendChild(dropdown);
+  let results = [], active = -1;
+  const close = () => { dropdown.style.display = "none"; active = -1; };
+  function render() {
+    dropdown.innerHTML = results.length
+      ? results.map((p, i) => `
+          <div class="ac-item ${i === active ? "active" : ""}" data-i="${i}">
+            <span>${p.flag || ""}</span>
+            <span class="ac-name">${highlight(p.name, inputEl.value.trim())}</span>
+            <span class="ac-meta">${esc(p.club || "")}</span>
+          </div>`).join("")
+      : `<div class="ac-empty">No matches found</div>`;
+    dropdown.style.display = "block";
+  }
+  function choose(i) {
+    const p = results[i];
+    if (!p) return;
+    close();
+    inputEl.value = "";
+    onSelect(p);
+  }
+  inputEl.addEventListener("input", () => {
+    const v = inputEl.value.trim();
+    if (v.length < minChars) { close(); return; }
+    results = searchPlayers(v, { source, exclude: getExclude(), filterFn, limit });
+    active = results.length ? 0 : -1;
+    render();
+  });
+  inputEl.addEventListener("keydown", e => {
+    if (dropdown.style.display !== "block" || !results.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); active = (active + 1) % results.length; render(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); active = (active - 1 + results.length) % results.length; render(); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(active >= 0 ? active : 0); }
+    else if (e.key === "Escape") close();
+  });
+  dropdown.addEventListener("pointerdown", e => {
+    const item = e.target.closest(".ac-item");
+    if (item) { e.preventDefault(); choose(+item.dataset.i); }
+  });
+  inputEl.addEventListener("blur", () => setTimeout(close, 150));
+  inputEl.setAttribute("autocomplete", "off");
+}
+
+/* ===== DAILY SEED (same puzzle for everyone, changes at midnight) ===== */
+function mulberry32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+const now = new Date();
+const dateKey = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+const rand = mulberry32(parseInt(dateKey.replace(/-/g, ""), 10));
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const clubSet = new Set();
+PLAYERS_DB.forEach(p => p.clubs.forEach(c => clubSet.add(c)));
+const todaysClubs = shuffle([...clubSet]).slice(0, 11);
+
+/* ===== GAME STATE ===== */
+const SAVE_KEY = "lineup-" + dateKey;
+let state = { mode: null, seconds: 0, mistakes: 0, placed: Array(11).fill(null), status: "start" };
+function save() { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+function load() {
+  const s = localStorage.getItem(SAVE_KEY);
+  if (s) { try { state = { ...state, ...JSON.parse(s) }; return true; } catch (e) {} }
+  return false;
+}
+
+/* ===== TIMER ===== */
+let timerInt = null;
+function startTimer() {
+  if (state.mode !== "timed" || timerInt) return;
+  timerInt = setInterval(() => { state.seconds++; save(); renderTimer(); }, 1000);
+}
+function stopTimer() { clearInterval(timerInt); timerInt = null; }
+function renderTimer() {
+  const el = document.getElementById("timer");
+  if (state.mode !== "timed") { el.textContent = ""; return; }
+  const m = String(Math.floor(state.seconds / 60)).padStart(2, "0");
+  const s = String(state.seconds % 60).padStart(2, "0");
+  el.textContent = "⏱ " + m + ":" + s;
+}
+function renderMistakes() {
+  document.getElementById("mistakes").textContent = state.mistakes > 0 ? "❌ " + state.mistakes : "";
+}
+
+/* ===== RENDER ===== */
+function renderSlots() {
+  const wrap = document.getElementById("slots");
+  wrap.innerHTML = "";
+  todaysClubs.forEach((club, i) => {
+    const row = document.createElement("div");
+    row.className = "slot";
+    const p = state.placed[i];
+    if (p) {
+      row.classList.add("filled");
+      row.innerHTML = `<span class="club">${club}</span><span class="player">${p.flag} ${p.name}</span>`;
+    } else if (state.status === "playing") {
+      row.innerHTML = `<span class="club">${club}</span>`;
+      const input = document.createElement("input");
+      input.placeholder = "Type a player...";
+      row.appendChild(input);
+      attachAutocomplete(input, {
+        getExclude: () => state.placed.filter(Boolean),
+        onSelect: pl => tryPlace(i, pl)
+      });
+    } else if (state.status === "gaveup") {
+      const ans = PLAYERS_DB.find(pl => pl.clubs.includes(club));
+      row.classList.add("revealed");
+      row.innerHTML = `<span class="club">${club}</span><span class="player">${ans.flag} ${ans.name}</span>`;
+    } else {
+      row.innerHTML = `<span class="club">${club}</span><span class="player">—</span>`;
+    }
+    wrap.appendChild(row);
+  });
+}
+function showResult(title, sub) {
+  const r = document.getElementById("result");
+  r.innerHTML = `<h2>${title}</h2><p>${sub}</p>`;
+  r.style.display = "block";
+  document.getElementById("giveUp").style.display = "none";
+}
+
+/* ===== GAME LOGIC ===== */
+function tryPlace(slotIdx, player) {
+  const alreadyUsed = state.placed.some(p => p && p.id === player.id);
+  const correctClub = player.clubs.includes(todaysClubs[slotIdx]);
+  if (alreadyUsed || !correctClub) {
+    state.mistakes++;
+    save();
+    renderMistakes();
+    const row = document.getElementById("slots").children[slotIdx];
+    row.classList.add("wrong");
+    setTimeout(() => row.classList.remove("wrong"), 500);
+    return;
+  }
+  state.placed[slotIdx] = player;
+  save();
+  renderSlots();
+  if (state.placed.filter(Boolean).length === 11) {
+    state.status = "won";
+    stopTimer();
+    save();
+    const timeTxt = state.mode === "timed" ? `Time: ${Math.floor(state.seconds / 60)}m ${state.seconds % 60}s • ` : "";
+    showResult("🎉 Full lineup complete!", `${timeTxt}Mistakes: ${state.mistakes}. Come back tomorrow for a new lineup!`);
+  }
+}
+
+function startGame(mode) {
+  state = { mode, seconds: 0, mistakes: 0, placed: Array(11).fill(null), status: "playing" };
+  save();
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  renderSlots();
+  renderTimer();
+  renderMistakes();
+  startTimer();
+}
+
+document.getElementById("btnTimed").onclick = () => startGame("timed");
+document.getElementById("btnUntimed").onclick = () => startGame("untimed");
+
+document.getElementById("giveUp").onclick = () => {
+  if (!confirm("Reveal the answers and give up?")) return;
+  state.status = "gaveup";
+  stopTimer();
+  save();
+  renderSlots();
+  showResult("🏳️ Given up", "The full lineup is revealed. Come back tomorrow for a new challenge!");
+};
+
+/* ===== INIT ===== */
+document.getElementById("dateLabel").textContent = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+const hadSave = load();
+if (hadSave && state.status !== "start") {
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  renderSlots();
+  renderTimer();
+  renderMistakes();
+  if (state.status === "playing") startTimer();
+  if (state.status === "won") {
+    const timeTxt = state.mode === "timed" ? `Time: ${Math.floor(state.seconds / 60)}m ${state.seconds % 60}s • ` : "";
+    showResult("🎉 Full lineup complete!", `${timeTxt}Mistakes: ${state.mistakes}. Come back tomorrow for a new lineup!`);
+  }
+  if (state.status === "gaveup") showResult("🏳️ Given up", "The full lineup is revealed. Come back tomorrow for a new challenge!");
+}
+</script>
+</body>
+</html>
