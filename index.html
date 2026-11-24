@@ -1,10 +1,5 @@
 /* =========================================================
    PLAYERS DATABASE
-   name     : official display name
-   aliases  : nicknames people actually type (optional but powerful)
-   club     : current club
-   clubs    : notable clubs played for (your Grid/Lineup games check against this)
-   position : GK / DF / MF / FW
    ========================================================= */
 
 const PLAYERS_DB = [
@@ -37,40 +32,38 @@ const PLAYERS_DB = [
   { id: 27, name: "Frenkie de Jong",       aliases: ["De Jong"],                       nation: "Netherlands", flag: "🇳🇱", club: "Barcelona",       clubs: ["Ajax", "Barcelona"],                                  position: "MF" },
   { id: 28, name: "Cody Gakpo",            aliases: [],                                nation: "Netherlands", flag: "🇳🇱", club: "Liverpool",       clubs: ["PSV", "Liverpool"],                                   position: "FW" },
   { id: 29, name: "Matthijs de Ligt",      aliases: ["De Ligt"],                       nation: "Netherlands", flag: "🇳🇱", club: "Manchester United", clubs: ["Ajax", "Juventus", "Bayern Munich", "Manchester United"], position: "DF" },
-  { id: 30, name: "Joshua Kimmich",        aliases  { id: 30, name: "Joshua Kimmich",        aliases: [],                                nation: "Germany",     flag: "🇩🇪", club: "Bayern Munich",    clubs: ["Stuttgart", "RB Leipzig", "Bayern Munich"], position: "MF" },
-  { id: 31, name: "Jamal Musiala",         aliases: [],                                nation: "Germany",     flag: "🇩🇪", club: "Bayern Munich",    clubs: ["Bayern Munich"],                            position: "MF" },
-  { id: 32, name: "Florian Wirtz",         aliases: [],                                nation: "Germany",     flag: "🇩🇪", club: "Liverpool",        clubs: ["Bayer Leverkusen", "Liverpool"],            position: "MF" },
-  { id: 33, name: "Kai Havertz",           aliases: [],                                nation: "Germany",     flag: "🇩🇪", club: "Arsenal",          clubs: ["Bayer Leverkusen", "Chelsea", "Arsenal"],   position: "FW" },
-  { id: 34, name: "Antonio Rüdiger",       aliases: ["Rudiger"],                       nation: "Germany",     flag: "🇩🇪", club: "Real Madrid",      clubs: ["Stuttgart", "Roma", "Chelsea", "Real Madrid"], position: "DF" },
-  { id: 35, name: "İlkay Gündoğan",        aliases: ["Ilkay Gundogan", "Gundogan"],    nation: "Germany",     flag: "🇩🇪", club: "Manchester City",  clubs: ["Borussia Dortmund", "Manchester City", "Barcelona"], position: "MF" },
-  { id: 36, name: "Alisson Becker",        aliases: ["Alisson"],                       nation: "Brazil",      flag: "🇧🇷", club: "Liverpool",        clubs: ["Internacional", "Roma", "Liverpool"],       position: "GK" },
-  { id: 37, name: "Ederson",               aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Fenerbahçe",       clubs: ["Benfica", "Manchester City", "Fenerbahce"], position: "GK" },
-  { id: 38, name: "Casemiro",              aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Manchester United", clubs: ["São Paulo", "Real Madrid", "Manchester United"], position: "MF" },
-  { id: 39, name: "Rodrygo",               aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Real Madrid",      clubs: ["Santos", "Real Madrid"],                    position: "FW" },
-  { id: 40, name: "Raphinha",              aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Barcelona",        clubs: ["Rennes", "Leeds United", "Barcelona"],      position: "FW" },
-  { id: 41, name: "Richarlison",           aliases: [],                                nation: "Brazil",      flag: "🇧🇷", club: "Tottenham",        clubs: ["Watford", "Everton", "Tottenham"],          position: "FW" },
-  { id: 42, name: "Alphonso Davies",       aliases: [],                                nation: "Canada",      flag: "🇨🇦", club: "Bayern Munich",    clubs: ["Vancouver Whitecaps", "Bayern Munich"],     position: "DF" },
-  { id: 43, name: "Son Heung-min",         aliases: ["Son"],                           nation: "South Korea", flag: "🇰🇷", club: "LAFC",             clubs: ["Hamburg", "Bayer Leverkusen", "Tottenham", "LAFC"], position: "FW" },
-  { id: 44, name: "Kaoru Mitoma",          aliases: [],                                nation: "Japan",       flag: "🇯🇵", club: "Brighton",         clubs: ["Kawasaki Frontale", "Union Saint-Gilloise", "Brighton"], position: "FW" },
-  { id: 45, name: "Takefusa Kubo",         aliases: [],                                nation: "Japan",       flag: "🇯🇵", club: "Real Sociedad",    clubs: ["FC Tokyo", "Real Madrid", "Mallorca", "Real Sociedad"], position: "FW" },
-  { id: 46, name: "Victor Osimhen",        aliases: [],                                nation: "Nigeria",     flag: "🇳🇬", club: "Galatasaray",      clubs: ["Wolfsburg", "Charleroi", "Lille", "Napoli", "Galatasaray"], position: "FW" },
-  { id: 47, name: "Ademola Lookman",       aliases: [],                                nation: "Nigeria",     flag: "🇳🇬", club: "Atalanta",         clubs: ["Everton", "RB Leipzig", "Fulham", "Atalanta"], position: "FW" },
-  { id: 48, name: "Achraf Hakimi",         aliases: [],                                nation: "Morocco",     flag: "🇲🇦", club: "PSG",              clubs: ["Real Madrid", "Borussia Dortmund", "Inter Milan", "PSG"], position: "DF" },
-  { id: 49, name: "Yassine Bounou",        aliases: ["Bono", "Bounou"],                nation: "Morocco",     flag: "🇲🇦", club: "Al Hilal",         clubs: ["Girona", "Sevilla", "Al Hilal"],            position: "GK" },
-  { id: 50, name: "Cole Palmer",           aliases: [],                                nation: "England",     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Chelsea",          clubs: ["Manchester City", "Chelsea"],               position: "MF" },
-  { id: 51, name: "Emiliano Martínez",     aliases: ["Dibu Martinez", "Dibu", "Emi Martinez"], nation: "Argentina", flag: "🇦🇷", club: "Aston Villa", clubs: ["Arsenal", "Getafe", "Aston Villa"],      position: "GK" },
-  { id: 52, name: "Julián Álvarez",        aliases: ["Julian Alvarez"],                nation: "Argentina",   flag: "🇦🇷", club: "Atlético Madrid",  clubs: ["River Plate", "Manchester City", "Atlético Madrid"], position: "FW" },
-  { id: 53, name: "Lautaro Martínez",      aliases: ["Lautaro"],                       nation: "Argentina",   flag: "🇦🇷", club: "Inter Milan",      clubs: ["Racing Club", "Inter Milan"],               position: "FW" },
-  { id: 54, name: "Alexis Mac Allister",   aliases: ["Mac Allister"],                  nation: "Argentina",   flag: "🇦🇷", club: "Liverpool",        clubs: ["Argentinos Juniors", "Brighton", "Liverpool"], position: "MF" },
-  { id: 55, name: "Enzo Fernández",        aliases: ["Enzo Fernandez"],                nation: "Argentina",   flag: "🇦🇷", club: "Chelsea",          clubs: ["River Plate", "Benfica", "Chelsea"],        position: "MF" },
-  { id: 56, name: "Federico Valverde",     aliases: ["Fede Valverde", "Valverde"],     nation: "Uruguay",     flag: "🇺🇾", club: "Real Madrid",      clubs: ["Peñarol", "Deportivo La Coruña", "Real Madrid"], position: "MF" },
-  { id: 57, name: "Darwin Núñez",          aliases: ["Darwin Nunez", "Darwin"],        nation: "Uruguay",     flag: "🇺🇾", club: "Al Hilal",         clubs: ["Peñarol", "Almería", "Benfica", "Liverpool", "Al Hilal"], position: "FW" },
-  { id: 58, name: "Ronald Araújo",         aliases: ["Araujo"],                        nation: "Uruguay",     flag: "🇺🇾", club: "Barcelona",        clubs: ["Nacional", "Barcelona"],                    position: "DF" },
-  { id: 59, name: "Thibaut Courtois",      aliases: [],                                nation: "Belgium",     flag: "🇧🇪", club: "Real Madrid",      clubs: ["Genk", "Chelsea", "Atlético Madrid", "Real Madrid"], position: "GK" },
-  { id: 60, name: "Marcus Rashford",       aliases: [],                                nation: "England",     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Barcelona",        clubs: ["Manchester United", "Aston Villa", "Barcelona"], position: "FW" }
-];/* ============ AUTOCOMPLETE ENGINE ============ */
+  { id: 30, name: "Joshua Kimmich",        aliases: [],                                nation: "Germany",    flag: "🇩🇪", club: "Bayern Munich",    clubs: ["Stuttgart", "RB Leipzig", "Bayern Munich"],           position: "MF" },
+  { id: 31, name: "Jamal Musiala",         aliases: [],                                nation: "Germany",    flag: "🇩🇪", club: "Bayern Munich",    clubs: ["Bayern Munich"],                                      position: "MF" },
+  { id: 32, name: "Florian Wirtz",         aliases: [],                                nation: "Germany",    flag: "🇩🇪", club: "Liverpool",        clubs: ["Bayer Leverkusen", "Liverpool"],                      position: "MF" },
+  { id: 33, name: "Kai Havertz",           aliases: [],                                nation: "Germany",    flag: "🇩🇪", club: "Arsenal",          clubs: ["Bayer Leverkusen", "Chelsea", "Arsenal"],             position: "FW" },
+  { id: 34, name: "Antonio Rüdiger",       aliases: ["Rudiger"],                       nation: "Germany",    flag: "🇩🇪", club: "Real Madrid",      clubs: ["Stuttgart", "Roma", "Chelsea", "Real Madrid"],        position: "DF" },
+  { id: 35, name: "İlkay Gündoğan",        aliases: ["Ilkay Gundogan", "Gundogan"],    nation: "Germany",    flag: "🇩🇪", club: "Manchester City",  clubs: ["Borussia Dortmund", "Manchester City", "Barcelona"],  position: "MF" },
+  { id: 36, name: "Alisson Becker",        aliases: ["Alisson"],                       nation: "Brazil",     flag: "🇧🇷", club: "Liverpool",        clubs: ["Internacional", "Roma", "Liverpool"],                 position: "GK" },
+  { id: 37, name: "Ederson",               aliases: [],                                nation: "Brazil",     flag: "🇧🇷", club: "Fenerbahçe",       clubs: ["Benfica", "Manchester City", "Fenerbahce"],           position: "GK" },
+  { id: 38, name: "Casemiro",              aliases: [],                                nation: "Brazil",     flag: "🇧🇷", club: "Manchester United", clubs: ["São Paulo", "Real Madrid", "Manchester United"],     position: "MF" },
+  { id: 39, name: "Rodrygo",               aliases: [],                                nation: "Brazil",     flag: "🇧🇷", club: "Real Madrid",      clubs: ["Santos", "Real Madrid"],                              position: "FW" },
+  { id: 40, name: "Raphinha",              aliases: [],                                nation: "Brazil",     flag: "🇧🇷", club: "Barcelona",        clubs: ["Rennes", "Leeds United", "Barcelona"],                position: "FW" },
+  { id: 41, name: "Richarlison",           aliases: [],                                nation: "Brazil",     flag: "🇧🇷", club: "Tottenham",        clubs: ["Watford", "Everton", "Tottenham"],                    position: "FW" },
+  { id: 42, name: "Alphonso Davies",       aliases: [],                                nation: "Canada",     flag: "🇨🇦", club: "Bayern Munich",    clubs: ["Vancouver Whitecaps", "Bayern Munich"],               position: "DF" },
+  { id: 43, name: "Son Heung-min",         aliases: ["Son"],                           nation: "South Korea", flag: "🇰🇷", club: "LAFC",            clubs: ["Hamburg", "Bayer Leverkusen", "Tottenham", "LAFC"],   position: "FW" },
+  { id: 44, name: "Kaoru Mitoma",          aliases: [],                                nation: "Japan",      flag: "🇯🇵", club: "Brighton",         clubs: ["Kawasaki Frontale", "Union Saint-Gilloise", "Brighton"], position: "FW" },
+  { id: 45, name: "Takefusa Kubo",         aliases: [],                                nation: "Japan",      flag: "🇯🇵", club: "Real Sociedad",    clubs: ["FC Tokyo", "Real Madrid", "Mallorca", "Real Sociedad"], position: "FW" },
+  { id: 46, name: "Victor Osimhen",        aliases: [],                                nation: "Nigeria",    flag: "🇳🇬", club: "Galatasaray",      clubs: ["Wolfsburg", "Charleroi", "Lille", "Napoli", "Galatasaray"], position: "FW" },
+  { id: 47, name: "Ademola Lookman",       aliases: [],                                nation: "Nigeria",    flag: "🇳🇬", club: "Atalanta",         clubs: ["Everton", "RB Leipzig", "Fulham", "Atalanta"],        position: "FW" },
+  { id: 48, name: "Achraf Hakimi",         aliases: [],                                nation: "Morocco",    flag: "🇲🇦", club: "PSG",              clubs: ["Real Madrid", "Borussia Dortmund", "Inter Milan", "PSG"], position: "DF" },
+  { id: 49, name: "Yassine Bounou",        aliases: ["Bono", "Bounou"],                nation: "Morocco",    flag: "🇲🇦", club: "Al Hilal",         clubs: ["Girona", "Sevilla", "Al Hilal"],                      position: "GK" },
+  { id: 50, name: "Cole Palmer",           aliases: [],                                nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Chelsea",          clubs: ["Manchester City", "Chelsea"],                         position: "MF" },
+  { id: 51, name: "Emiliano Martínez",     aliases: ["Dibu Martinez", "Dibu", "Emi Martinez"], nation: "Argentina", flag: "🇦🇷", club: "Aston Villa", clubs: ["Arsenal", "Getafe", "Aston Villa"],                position: "GK" },
+  { id: 52, name: "Julián Álvarez",        aliases: ["Julian Alvarez"],                nation: "Argentina",  flag: "🇦🇷", club: "Atlético Madrid",  clubs: ["River Plate", "Manchester City", "Atlético Madrid"],  position: "FW" },
+  { id: 53, name: "Lautaro Martínez",      aliases: ["Lautaro"],                       nation: "Argentina",  flag: "🇦🇷", club: "Inter Milan",      clubs: ["Racing Club", "Inter Milan"],                         position: "FW" },
+  { id: 54, name: "Alexis Mac Allister",   aliases: ["Mac Allister"],                  nation: "Argentina",  flag: "🇦🇷", club: "Liverpool",        clubs: ["Argentinos Juniors", "Brighton", "Liverpool"],        position: "MF" },
+  { id: 55, name: "Enzo Fernández",        aliases: ["Enzo Fernandez"],                nation: "Argentina",  flag: "🇦🇷", club: "Chelsea",          clubs: ["River Plate", "Benfica", "Chelsea"],                  position: "MF" },
+  { id: 56, name: "Federico Valverde",     aliases: ["Fede Valverde", "Valverde"],     nation: "Uruguay",    flag: "🇺🇾", club: "Real Madrid",      clubs: ["Peñarol", "Deportivo La Coruña", "Real Madrid"],      position: "MF" },
+  { id: 57, name: "Darwin Núñez",          aliases: ["Darwin Nunez", "Darwin"],        nation: "Uruguay",    flag: "🇺🇾", club: "Al Hilal",         clubs: ["Peñarol", "Almería", "Benfica", "Liverpool", "Al Hilal"], position: "FW" },
+  { id: 58, name: "Ronald Araújo",         aliases: ["Araujo"],                        nation: "Uruguay",    flag: "🇺🇾", club: "Barcelona",        clubs: ["Nacional", "Barcelona"],                              position: "DF" },
+  { id: 59, name: "Thibaut Courtois",      aliases: [],                                nation: "Belgium",    flag: "🇧🇪", club: "Real Madrid",      clubs: ["Genk", "Chelsea", "Atlético Madrid", "Real Madrid"],  position: "GK" },
+  { id: 60, name: "Marcus Rashford",       aliases: [],                                nation: "England",    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", club: "Barcelona",        clubs: ["Manchester United", "Aston Villa", "Barcelona"],      position: "FW"
 
-// lowercase, strip accents (é→e, ü→u), strip punctuation, collapse spaces
 function normalize(str) {
   return str
     .toLowerCase()
@@ -81,7 +74,6 @@ function normalize(str) {
     .replace(/\s+/g, " ");
 }
 
-// build a search index once per database (cached)
 const indexCache = new WeakMap();
 function getIndex(db) {
   if (!indexCache.has(db)) {
@@ -93,7 +85,6 @@ function getIndex(db) {
   return indexCache.get(db);
 }
 
-// rank 0 = starts with query, 1 = a word starts with it, 2 = contains it
 function searchPlayers(query, { source = PLAYERS_DB, exclude = [], filterFn = null, limit = 8 } = {}) {
   const q = normalize(query);
   if (!q) return [];
@@ -117,9 +108,11 @@ function searchPlayers(query, { source = PLAYERS_DB, exclude = [], filterFn = nu
   }
 
   return [...buckets[0], ...buckets[1], ...buckets[2]].slice(0, limit);
-}/* ============ AUTOCOMPLETE UI ============ */
+}
 
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+/* ============ AUTOCOMPLETE UI ============ */
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function highlight(name, q) {
   const i = name.toLowerCase().indexOf(q.toLowerCase());
@@ -129,15 +122,14 @@ function highlight(name, q) {
 
 function attachAutocomplete(inputEl, opts = {}) {
   const {
-    source = PLAYERS_DB,     // which database to search
-    onSelect = () => {},     // what to do when a player is picked
-    getExclude = () => [],   // players to hide (e.g. already guessed)
-    filterFn = null,         // optional restriction, e.g. only FWs
+    source = PLAYERS_DB,
+    onSelect = () => {},
+    getExclude = () => [],
+    filterFn = null,
     limit = 8,
     minChars = 1
   } = opts;
 
-  // wrap the input so the dropdown positions correctly
   let wrapper = inputEl.parentElement;
   if (!wrapper.classList.contains("ac-wrapper")) {
     wrapper = document.createElement("div");
@@ -177,7 +169,7 @@ function attachAutocomplete(inputEl, opts = {}) {
     const v = inputEl.value.trim();
     if (v.length < minChars) { close(); return; }
     results = searchPlayers(v, { source, exclude: getExclude(), filterFn, limit });
-    active = results.length ? 0 : -1;   // Enter picks the top match instantly
+    active = results.length ? 0 : -1;
     render();
   });
 
@@ -189,7 +181,6 @@ function attachAutocomplete(inputEl, opts = {}) {
     else if (e.key === "Escape") close();
   });
 
-  // pointerdown + preventDefault = works on mobile AND keeps keyboard focus
   dropdown.addEventListener("pointerdown", e => {
     const item = e.target.closest(".ac-item");
     if (item) { e.preventDefault(); choose(+item.dataset.i); }
@@ -197,19 +188,4 @@ function attachAutocomplete(inputEl, opts = {}) {
 
   inputEl.addEventListener("blur", () => setTimeout(close, 150));
   inputEl.setAttribute("autocomplete", "off");
-}.ac-wrapper { position: relative; }
-.ac-dropdown {
-  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-  background: #fff; border: 1px solid #ddd; border-radius: 10px;
-  max-height: 260px; overflow-y: auto; z-index: 1000;
-  box-shadow: 0 10px 24px rgba(0,0,0,.18); display: none;
 }
-.ac-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 10px 12px; cursor: pointer; font-size: 14px;
-}
-.ac-item.active, .ac-item:hover { background: #eef4ff; }
-.ac-name { font-weight: 600; }
-.ac-meta { margin-left: auto; font-size: 12px; color: #888; }
-.ac-item mark { background: #ffe58a; padding: 0; }
-.ac-empty { padding: 12px; color: #999; font-size: 13px; text-align: center; }
